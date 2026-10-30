@@ -1,0 +1,441 @@
+<title>IBMT Clinical | Trial startup demo</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one-column phone app; sticky header; bottom tab bar; every regulatory claim carries a source chip that opens a source sheet */
+:root{
+  --bg:#f3f6f5; --surface:#ffffff; --fg:#14211f; --muted:#5b6b68; --line:#d9e2e0;
+  --accent:#0f6b5c; --accent-soft:#e1f0ec; --accent-ink:#ffffff;
+  --good:#1f7a3f; --good-soft:#e3f3e8; --warn:#9a6200; --warn-soft:#fbefd9; --crit:#b3261e; --crit-soft:#fbe4e2; --info:#2d5ea8; --info-soft:#e4ecf9;
+  --font-ui:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1514; --surface:#16201e; --fg:#e6efed; --muted:#9db0ac; --line:#2a3836;
+  --accent:#4cc2a8; --accent-soft:#163a33; --accent-ink:#06201b;
+  --good:#6fd38f; --good-soft:#173322; --warn:#f0b54a; --warn-soft:#3a2a0d; --crit:#ff8a80; --crit-soft:#3d1916; --info:#8cb4f5; --info-soft:#17263f;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1514; --surface:#16201e; --fg:#e6efed; --muted:#9db0ac; --line:#2a3836;
+  --accent:#4cc2a8; --accent-soft:#163a33; --accent-ink:#06201b;
+  --good:#6fd38f; --good-soft:#173322; --warn:#f0b54a; --warn-soft:#3a2a0d; --crit:#ff8a80; --crit-soft:#3d1916; --info:#8cb4f5; --info-soft:#17263f;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--fg);font-family:var(--font-ui);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding-inline:16px;padding-block:0 104px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-inner{max-width:720px;margin:0 auto;padding:12px 16px 10px;display:flex;align-items:center;gap:10px}
+.brand{font-weight:800;letter-spacing:-.01em;font-size:16px}
+.brand span{color:var(--accent)}
+.hdr-btn{margin-left:auto;appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:600 12px/1 var(--font-ui);padding:7px 10px;border-radius:999px;cursor:pointer}
+.proto{font:500 11px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--warn);background:var(--warn-soft);padding:5px 8px;border-radius:999px}
+.study-line{max-width:720px;margin:0 auto;padding:0 16px 10px;font-size:12.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap}
+.study-line b{color:var(--fg);font-weight:600}
+h1{font-size:24px;line-height:1.2;letter-spacing:-.02em;margin:22px 0 6px;text-wrap:balance}
+h2{font-size:17px;margin:24px 0 8px;letter-spacing:-.01em;text-wrap:balance}
+p.lead{color:var(--muted);margin:0 0 16px;max-width:60ch}
+.eyebrow{font:500 11px/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-top:22px}
+.banner{background:var(--warn-soft);border-radius:var(--r);padding:10px 12px;font-size:13px;margin:12px 0}
+.banner b{color:var(--warn)}
+.banner.info{background:var(--info-soft)} .banner.info b{color:var(--info)}
+.btn{appearance:none;border:0;border-radius:10px;padding:13px 16px;font:600 15px/1.2 var(--font-ui);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+.btn-row .btn{flex:1 1 200px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-width:0}
+.stat .n{font:700 22px/1.1 var(--font-ui);font-variant-numeric:tabular-nums}
+.stat .l{font-size:12px;color:var(--muted)}
+.chip-s,.ptag{font:500 11px/1 var(--font-mono);border:0;border-radius:6px;padding:4px 6px;cursor:pointer;white-space:nowrap;vertical-align:1px}
+.ptag{background:var(--accent-soft);color:var(--accent)}
+.chip-s{background:var(--info-soft);color:var(--info)}
+/* facts */
+.fact{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.fact:last-child{border-bottom:0}
+.fact .k{font-size:12.5px;color:var(--muted)}
+.fact .v{font-weight:600;min-width:0}
+.fact .meta{grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.conf{font:500 10.5px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.06em;padding:3px 6px;border-radius:5px}
+.conf.high{background:var(--good-soft);color:var(--good)} .conf.med{background:var(--warn-soft);color:var(--warn)} .conf.low{background:var(--crit-soft);color:var(--crit)}
+.gap{display:grid;grid-template-columns:22px 1fr;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.gap:last-child{border-bottom:0}
+.gap i{width:22px;height:22px;border-radius:50%;background:var(--crit-soft);color:var(--crit);display:grid;place-items:center;font:700 12px/1 var(--font-mono);font-style:normal}
+/* checklist */
+.req{display:grid;grid-template-columns:28px 1fr;gap:10px}
+.step{width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font:600 12.5px/1 var(--font-mono)}
+.req h3{margin:2px 0;font-size:15px;line-height:1.3}
+.why{font-size:13.5px;color:var(--muted);margin:6px 0 0}
+.why b{color:var(--fg);font-weight:600}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin-top:8px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.badge{display:inline-block;font:500 10.5px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.06em;padding:4px 7px;border-radius:5px}
+.b-src{background:var(--good-soft);color:var(--good)} .b-unv{background:var(--warn-soft);color:var(--warn)} .b-likely{background:var(--info-soft);color:var(--info)}
+.group{font:600 12px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:24px 0 8px}
+.na{font-size:13.5px;color:var(--muted);padding:10px 12px;border:1px dashed var(--line);border-radius:var(--r)}
+/* package */
+.pk{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+.pk:last-child{border-bottom:0}
+.pk .no{font:500 11.5px/1.6 var(--font-mono);color:var(--muted)}
+.pk .t{font-size:14px;font-weight:600;line-height:1.35}
+.pk .d{font-size:12.5px;color:var(--muted);margin-top:2px}
+.pill{font:600 11px/1 var(--font-ui);padding:6px 8px;border-radius:999px;white-space:nowrap}
+.p-ready{background:var(--good-soft);color:var(--good)} .p-fix{background:var(--warn-soft);color:var(--warn)} .p-need{background:var(--info-soft);color:var(--info)} .p-gap{background:var(--crit-soft);color:var(--crit)} .p-wait{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin:8px 0 14px}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:8px 12px;font:500 13px/1 var(--font-ui);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.doc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 16px;font-size:14.5px;line-height:1.65}
+.doc p{margin:0 0 12px;max-width:65ch}
+.doc .ptag,.doc .chip-s{margin-left:4px}
+.ph{background:var(--crit-soft);color:var(--crit);border-radius:4px;padding:1px 4px;font-weight:600}
+.review{display:flex;align-items:center;gap:8px;font-size:13px;margin:10px 0;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--warn);flex:0 0 auto}
+/* plan */
+.timeline{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.timeline svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+table.who{width:100%;border-collapse:collapse;font-size:13px}
+table.who th{text-align:left;font:600 11px/1.2 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 6px;border-bottom:1px solid var(--line)}
+table.who td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:4px 8px}
+.sub{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:start}
+.sub h3{margin:0;font-size:14.5px;line-height:1.3}
+.sub .who2{font-size:12.5px;color:var(--muted)}
+.sub .date{grid-column:1 / -1;font-size:12.5px;color:var(--muted)}
+/* reading */
+.reading{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.rline{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.rline.done{color:var(--fg)}
+.tick{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:0 0 auto;display:grid;place-items:center;font-size:11px}
+.rline.done .tick{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.drop{border:2px dashed var(--line);border-radius:var(--r);padding:18px 16px;color:var(--muted);background:var(--surface)}
+.drop b{color:var(--fg);display:block;font-size:15px;margin-bottom:4px}
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);color:var(--fg);width:100%;max-width:720px;max-height:82vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.sheet h3{margin:0 0 4px;font-size:16px}
+.sheet .meta{font-size:12.5px;color:var(--muted);margin-bottom:10px}
+.src{padding:12px 0;border-bottom:1px solid var(--line)}
+.src:last-child{border-bottom:0}
+.src .id{font:600 11.5px/1 var(--font-mono);color:var(--info)}
+.src a{color:var(--accent);word-break:break-word}
+/* tabbar */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs-inner{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tab{appearance:none;background:none;border:0;color:var(--muted);font:600 11px/1.1 var(--font-ui);padding:10px 2px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;min-height:56px}
+.tab svg{width:22px;height:22px}
+.tab[aria-current="page"]{color:var(--accent)}
+.tab:disabled{opacity:.4;cursor:default}
+.toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:10px;font-size:13.5px;z-index:30;max-width:calc(100% - 32px)}
+.foot{font-size:12px;color:var(--muted);margin-top:28px}
+.link{appearance:none;border:0;background:none;color:var(--accent);font:600 13px/1 var(--font-ui);padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">IBMT <span>Clinical</span></div>
+    <span class="proto">Prototype</span>
+    <button class="hdr-btn" id="openSources">Sources</button>
+  </div>
+  <div class="study-line" id="studyLine" hidden><b>ARETTA</b><span>· NCT03879577 · Public protocol, Jan 2019</span></div>
+</header>
+
+<main class="wrap" id="app"></main>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="tabs-inner">
+    <button class="tab" data-go="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+    <button class="tab" data-go="facts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M8 13h8M8 17h5"/></svg>Protocol</button>
+    <button class="tab" data-go="checklist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>Checklist</button>
+    <button class="tab" data-go="package"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></svg>Package</button>
+    <button class="tab" data-go="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h7M3 12h12M3 18h5"/><path d="M14 6h7M18 12h3M11 18h10"/></svg>Plan</button>
+  </div>
+</nav>
+
+<script>
+/* ---------- Sources (public documents reviewed) ---------- */
+const SRC = {
+ S1:{t:"NAFDAC Guidelines for Clinical Trial Application in Nigeria", ref:"DER-GDL-002-01 · effective 2 Jan 2019 · review date 1 Jan 2021 (confirm this is still current)", url:"https://www.policyvault.africa/wp-content/uploads/policy/NGA336.pdf", kind:"Official guideline"},
+ S2:{t:"NAFDAC Guidelines for Submission of Clinical Trial Progress Report", ref:"DER-GDL-010-00 · effective 2 Jan 2019", url:"https://policyvault.africa/wp-content/uploads/policy/NGA338.pdf", kind:"Official guideline"},
+ S3:{t:"NAFDAC Guidelines for Conduct of Clinical Trials during Emergencies", ref:"DER-GDL-015-00 · effective 8 May 2019", url:"https://www.policyvault.africa/wp-content/uploads/policy/NGA340.pdf", kind:"Official guideline"},
+ S4:{t:"National Code for Health Research Ethics (2006), as presented by NHREC", ref:"Prof. Adejumo, \"The human research participant protection system in Nigeria,\" 26 Mar 2021", url:"https://www.kcl.ac.uk/kghp/assets/the-human-research-participant-protection-system-in-nigeria-prof-adejumo.pdf", kind:"Summary of national code (read the code itself to confirm)"},
+ S5:{t:"LUTH Health Research Ethics Committee", ref:"Lagos University Teaching Hospital website", url:"https://luth.gov.ng/research/hrec", kind:"Ethics committee website"},
+ S6:{t:"Nigeria Clinical Trials Registry: FAQ", ref:"nctr.nhrec.net", url:"https://nctr.nhrec.net/FAQ.php", kind:"Registry website"},
+ S7:{t:"NAFDAC authorization letter, CRASH-19 trial", ref:"NAFDAC/DER/SW/CT&D/2020/CRASH-19 · 29 Jun 2020 · public example of an approval", url:"https://crash19.lshtm.ac.uk/wp-content/uploads/2020/07/NAFDAC-CRASH-19-APPROVAL.pdf", kind:"Real approval letter (public)"},
+ S8:{t:"ARETTA protocol (NCT03879577)", ref:"University of Chicago Center for Global Health · released 30 Jan 2019 · pages 1–51 reviewed", url:"https://cdn.clinicaltrials.gov/large-docs/77/NCT03879577/Prot_SAP_000.pdf", kind:"Public protocol on ClinicalTrials.gov"},
+ S9:{t:"NAFDAC Good Clinical Practice Guidelines (2025)", ref:"Reported effective 5 May 2025, aligned with ICH E6(R3). Not yet reviewed by IBMT Clinical.", url:"https://casrai.org/guides/nafdac-nigeria-clinical-trial-approval-pathway", kind:"Third-party report (to obtain the guideline itself)"}
+};
+const s = (id, sec) => `<button class="chip-s" data-src="${id}" aria-label="Source ${SRC[id].t}${sec?' '+sec:''}">${id}${sec?' '+sec:''}</button>`;
+const pg = p => !p || !p.length ? "" : `<button class="ptag" data-pages="${p.join(",")}" aria-label="Protocol page ${p.join(", ")}">p. ${p.join(", ")}</button>`;
+
+/* ---------- Protocol facts (ARETTA, pages 1-51 reviewed) ---------- */
+const FACTS = [
+ {k:"Study", v:"ARETTA: neoadjuvant docetaxel and subcutaneous trastuzumab in Nigerian women with HER2-positive breast cancer", p:[1], c:"high"},
+ {k:"Sponsor", v:"University of Chicago Center for Global Health (academic); Roche listed as collaborating institution", p:[2,39], c:"high"},
+ {k:"Phase and design", v:"Phase II, single-arm, open label (no placebo or blinding)", p:[1,29], c:"high"},
+ {k:"Nigerian sites", v:"4 sites: UCH Ibadan, LUTH Lagos, LASUTH Ikeja, OAUTHC Ile-Ife (plus UCMC Chicago)", p:[2], c:"high"},
+ {k:"Population", v:"Women 18–70, HER2-positive breast cancer, stage IIA–IIIC, treatment-naïve", p:[30], c:"high"},
+ {k:"Pregnancy", v:"Excluded; contraception required for 24 months after last trastuzumab dose", p:[30,50], c:"high"},
+ {k:"Intervention", v:"Docetaxel + trastuzumab SC every 3 weeks for 12 weeks, then surgery 4–6 weeks later", p:[30,51], c:"high"},
+ {k:"Product supply", v:"Not stated. Trastuzumab SC is described as marketed in Nigeria; source of trial supply is unclear", p:[12], c:"low"},
+ {k:"Biological samples", v:"Residual tumor sent for genomic analysis; destination not stated", p:[30,51], c:"low"},
+ {k:"Planned enrollment", v:"Not stated in pages reviewed (35 potential patients on a 6-month screening log)", p:[47,50], c:"low"},
+ {k:"Ethics approval named", v:"University of Chicago IRB #IRB18-1178 only; no Nigerian committee named", p:[1,28], c:"high"},
+ {k:"Protocol version", v:"Version number and date blank in the investigator signature block", p:[15], c:"high"}
+];
+const GAPS = [
+ "Protocol version and date are blank on the signature page (p. 15). NAFDAC needs a signed, versioned protocol.",
+ "No Nigerian ethics committee is named (p. 1, 28). Each of the 4 sites needs its own committee's approval first.",
+ "Trial drug supply route isn't stated (p. 12). Import permit needed only if the product is imported.",
+ "Destination for tumor samples isn't stated (p. 51). If outside Nigeria, sample export and a transfer agreement are needed.",
+ "No data safety monitoring board found in pages reviewed. NAFDAC's application list includes a DSMB list and charter.",
+ "No local representative or monitor named. NAFDAC asks for the monitor's name and qualifications."
+];
+
+/* ---------- Checklist ---------- */
+const REQS = [
+ {g:"1 · Ethics (comes first)", name:"Ethics approval at each of the 4 sites", why:"<b>4 Nigerian sites</b> (p. 2). Each committee's authority is limited to its own institution, so each site needs its own approval.", src:[["S4","HREC scope"]], kv:[["Committees","UCH/UI Ethics Committee (Ibadan), LUTH HREC (Lagos), LASUTH HREC (Ikeja), OAUTHC HREC (Ile-Ife)"],["Who submits","Principal investigator at each site"],["Timing","LUTH: 4–6 weeks for full-committee review of clinical trials "+s("S5")+". National code: decision within 90 days "+s("S4")],["Example (LUTH)","Application letter to the Chairman, 2 spiral-bound protocol copies with consent form, CITI training certificate "+s("S5")]], st:"src", p:[2]},
+ {g:"1 · Ethics (comes first)", name:"National ethics review (NHREC)", why:"<b>More than 3 sites</b> (4 in Nigeria). NHREC may review research that is nationwide or at more than 3 sites, and can name one committee as the committee of record.", src:[["S4","NHREC review"]], kv:[["Who submits","Sponsor or local representative"],["Timing","Within 90 days under the national code "+s("S4")],["To confirm","Whether NHREC review is mandatory or discretionary for this study"]], st:"likely", p:[2]},
+ {g:"2 · Registration", name:"Trial registration", why:"Already registered as <b>NCT03879577</b>. The Nigeria registry says trials already in a WHO primary registry don't need to register again. Registration should come before the first participant and is free.", src:[["S6",""]], kv:[["Who","Sponsor"],["To confirm","Whether NAFDAC or the ethics committees expect an NCTR or PACTR number in addition"]], st:"src", p:[1]},
+ {g:"3 · NAFDAC", name:"Clinical trial application to the Director, Drug Evaluation & Research (DER)", why:"Interventional drug trial. The application package must include <b>ethics approvals from participating centers and the minutes of the approving meetings</b>, so ethics approval comes first.", src:[["S1","§2.4–2.5"]], kv:[["Package","17 documents (see Package tab) "+s("S1","§2.5")],["Fees","NAFDAC approved tariff + 5% VAT, paid by Remita invoice "+s("S1","§2.2–2.3, §4")],["Option","Pre-application consultation meeting with DER "+s("S1","§3")],["Timing","Standard review time not stated in the 2019 guideline. For comparison, the emergency pathway is 21 working days "+s("S3")],["Approval","Example approval letters are valid for 1 year "+s("S7")]], st:"src", p:[1]},
+ {g:"3 · NAFDAC", name:"Trial product supply", why:"No product may be imported, procured, or manufactured for the trial <b>before NAFDAC approval</b>. Supply route isn't stated in the protocol.", src:[["S1","§1.3"]], kv:[["Ask sponsor","Will trastuzumab SC and docetaxel be bought in Nigeria or imported (e.g., supplied by Roche)?"],["If imported","Import permit for the investigational product (process to verify)"]], st:"src", p:[12]},
+ {g:"4 · Samples", name:"Sample export and material transfer agreement", why:"<b>Residual tumor goes for genomic analysis</b> (p. 51); destination not stated. Applies only if samples leave Nigeria.", src:[], kv:[["Ask sponsor","Where is genomic analysis done (Nigeria or University of Chicago)?"],["Requirement","Export permit and transfer agreement process not yet sourced"]], st:"unv", p:[30,51]},
+ {g:"5 · Documents for the package", name:"Consent form and patient information leaflet", why:"Consent and an information leaflet are separate items in the NAFDAC package. The national code limits consent documents to <b>8 pages</b>.", src:[["S1","§2.5.3–4"],["S4","consent"]], kv:[["Languages","English plus Yoruba for Ibadan, Lagos, and Ile-Ife (language requirement to verify)"],["Who","Sponsor with each site"]], st:"src", p:[49]},
+ {g:"5 · Documents for the package", name:"Investigator documents", why:"Each investigator needs a CV, <b>GCP training within the last 2 years</b>, and a conflict-of-interest and financial disclosure.", src:[["S1","§2.5.11–12, 2.5.17"]], kv:[["Who","Each of the 4 sites"]], st:"src", p:[2]},
+ {g:"5 · Documents for the package", name:"Insurance, agreements, monitor, safety board", why:"Evidence of participant insurance, the sponsor–investigator agreement, the monitor's name and qualifications, and the <b>DSMB list and charter</b>.", src:[["S1","§2.5.6, 2.5.14–16"]], kv:[["Gap","No DSMB found in the protocol pages reviewed"],["Who","Sponsor"]], st:"src", p:[]},
+ {g:"6 · After approval", name:"Safety reporting, progress reports, renewals", why:"Serious adverse events to NAFDAC <b>within 7 calendar days</b>. Quarterly progress reports from the principal investigator. Amendments need NAFDAC approval. Ethics committees oversee the study at least yearly.", src:[["S1","§5.1, §5.3"],["S2","§1.2"],["S4","oversight"],["S7",""]], kv:[["Who","Sites and sponsor, coordinated by IBMT Clinical"]], st:"src", p:[]}
+];
+const NOT_REQ = [
+ {name:"Additional review for studies including children", why:"Participants are women 18–70 (p. 30)."},
+ {name:"Placebo-related consent wording", why:"Single-arm, open-label design (p. 29)."}
+];
+
+/* ---------- NAFDAC package: 17 documents from S1 §2.5 ---------- */
+const PKG = [
+ ["Evidence of payment for the application form","After Remita invoice","IBMT Clinical","wait"],
+ ["Study protocol","Version and date blank (p. 15)","Sponsor","fix"],
+ ["Informed consent form","English and Yoruba, max 8 pages","Sponsor + sites","need"],
+ ["Patient information leaflet","Separate from consent form","Sponsor","need"],
+ ["Investigator's brochure","Or product information for marketed products (to confirm)","Sponsor / Roche","need"],
+ ["Sponsor–investigator agreement","For each of 4 sites","Sponsor + sites","need"],
+ ["Ethics committee accreditation by NHREC","Certificate for each committee","Sites","need"],
+ ["Ethics approvals from participating centers","Step 1 of the checklist","Sites","wait"],
+ ["Ethics committee member lists","From each committee","Sites","need"],
+ ["Minutes of approving ethics meetings","Protocol and consent approval","Sites","wait"],
+ ["GCP training certificates (last 2 years)","All investigators","Sites","need"],
+ ["Investigator CVs","All investigators","Sites","need"],
+ ["Case report forms (paper or electronic)","Data system not named in protocol","Sponsor","need"],
+ ["Evidence of participant insurance","Covering Nigerian sites","Sponsor","need"],
+ ["Trial monitor name and qualifications","Not named in protocol","Sponsor","gap"],
+ ["DSMB list and charter","Not found in protocol pages reviewed","Sponsor","gap"],
+ ["Conflict of interest and financial disclosure","All investigators","Sites","need"]
+];
+const PST = {ready:["p-ready","Ready"],fix:["p-fix","Fix"],need:["p-need","Request"],gap:["p-gap","Gap"],wait:["p-wait","Later"]};
+
+/* ---------- Drafts ---------- */
+const DRAFTS = {
+ cover:{label:"NAFDAC cover letter", paras:[
+  [{t:"The Director-General (Attn: Director, Drug Evaluation & Research)", src:["S1","§6"]},{t:"National Agency for Food and Drug Administration and Control"},{t:"1st Floor, NAFDAC Office Complex, Isolo Industrial Estate, Oshodi-Apapa Expressway, Isolo, Lagos"}],
+  [{t:"Dear Sir/Madam,"}],
+  [{t:"Re: Application for authorization to conduct a clinical trial: ARETTA (NCT03879577)", b:true, p:[1]}],
+  [{t:"On behalf of the University of Chicago Center for Global Health, we apply for authorization to conduct a Phase II, single-arm study of neoadjuvant docetaxel and subcutaneous trastuzumab in women with HER2-positive breast cancer.", p:[1,29,30]},
+   {t:"The study will be conducted at University College Hospital, Ibadan; Lagos University Teaching Hospital; Lagos State University Teaching Hospital, Ikeja; and Obafemi Awolowo University Teaching Hospitals Complex, Ile-Ife.", p:[2]},
+   {t:"Participants are women aged 18 to 70 with stage IIA–IIIC disease who have not received prior treatment.", p:[30]}],
+  [{t:"Approvals from the ethics committees of all participating centers, with the minutes of the approving meetings, are enclosed as required.", src:["S1","§2.5.8–10"]},{t:"[Needs input: ethics approval reference numbers and dates]", ph:true}],
+  [{t:"Payment for the application has been made through Remita, and the receipt is enclosed.", src:["S1","§2.2–2.3"]},{t:"[Needs input: Remita reference]", ph:true}],
+  [{t:"The protocol version submitted is "},{t:"[Needs input: version number and date; blank on p. 15]", ph:true},{t:"."}],
+  [{t:"Yours faithfully,"},{t:"[Needs input: applicant name, title, and contact details]", ph:true}]
+ ]},
+ sponsor:{label:"Questions for the sponsor", paras:[
+  [{t:"To prepare the Nigerian submissions for ARETTA, we need the following from the University of Chicago team:", b:true}],
+  [{t:"1. A signed protocol with version number and date (signature block on p. 15 is blank).", p:[15]}],
+  [{t:"2. Trial drug supply: will trastuzumab SC and docetaxel be procured in Nigeria or imported? This decides whether an import permit is needed.", p:[12], src:["S1","§1.3"]}],
+  [{t:"3. Where will genomic analysis of residual tumor be done? If abroad, we will prepare a sample export application and transfer agreement.", p:[51]}],
+  [{t:"4. Data safety monitoring board membership and charter, required in the NAFDAC package.", src:["S1","§2.5.16"]}],
+  [{t:"5. The monitor's name and qualifications, the case report forms, and evidence of participant insurance.", src:["S1","§2.5.13–15"]}],
+  [{t:"6. Planned enrollment for each Nigerian site.", p:[50]}]
+ ]},
+ icf:{label:"Consent adaptation list", paras:[
+  [{t:"Consent materials for the 4 Nigerian sites:", b:true}],
+  [{t:"English consent form and a separate patient information leaflet.", src:["S1","§2.5.3–4"]}],
+  [{t:"Keep the consent document to 8 pages or fewer.", src:["S4","consent"]}],
+  [{t:"Yoruba versions for Ibadan, Lagos, and Ile-Ife. [Needs input: confirm language needs at LASUTH and certified translators]"}],
+  [{t:"Explain in plain language: 12 weeks of treatment, surgery 4–6 weeks later, and long-term follow-up for up to 10 years.", p:[48,51]}],
+  [{t:"State the contraception requirement for 24 months after the last trastuzumab dose.", p:[50]}],
+  [{t:"State that tumor samples will undergo genomic analysis, and where. [Needs input: destination]", p:[51]}],
+  [{t:"Consent must be obtained before any screening procedure.", p:[49]}]
+ ]}
+};
+
+/* ---------- Plan ---------- */
+const WHO = [
+ ["Ethics applications (4 sites)","Prepares packages, tracks queries","Signs protocol, consent","Submit and attend committee"],
+ ["NHREC review","Prepares and files","Reviews","Support"],
+ ["NAFDAC application","Assembles 17 documents, pays via Remita, files with DER, answers queries","Supplies sponsor documents","Supplies investigator documents"],
+ ["Trial product supply","Coordinates permit if imported","Decides source","Pharmacy storage"],
+ ["Sample export","Prepares export and agreement","Names receiving lab","Packs and ships"],
+ ["After approval","Tracks 7-day SAE reports, quarterly reports, renewals","Safety review","Report events"]
+];
+const TRACK = [
+ {n:"Ethics: LUTH Lagos", st:"p-need", l:"Preparing", d:"Full review 4–6 weeks once submitted"},
+ {n:"Ethics: UCH/UI Ibadan", st:"p-need", l:"Preparing", d:"Up to 90 days under the national code"},
+ {n:"Ethics: LASUTH Ikeja", st:"p-need", l:"Preparing", d:"Up to 90 days under the national code"},
+ {n:"Ethics: OAUTHC Ile-Ife", st:"p-need", l:"Preparing", d:"Up to 90 days under the national code"},
+ {n:"NHREC review (likely)", st:"p-fix", l:"To confirm", d:"Asked whether required for a 4-site study"},
+ {n:"NAFDAC application", st:"p-wait", l:"Waiting", d:"Needs ethics approvals and minutes first"},
+ {n:"Sponsor documents", st:"p-gap", l:"6 gaps", d:"Questions sent to sponsor"}
+];
+
+/* ---------- State ---------- */
+let state={screen:"home",loaded:false,confirmed:false,draft:"cover"};
+try{const v=JSON.parse(localStorage.getItem("ibmt-demo-v2")||"null"); if(v) state=Object.assign(state,v);}catch(e){}
+const save=()=>{try{localStorage.setItem("ibmt-demo-v2",JSON.stringify(state));}catch(e){}};
+const app=document.getElementById("app");
+function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2400);}
+function go(x){ if(x!=="home"&&!state.loaded) return; if(["checklist","package","plan"].includes(x)&&!state.confirmed){x="facts";toast("Confirm the protocol facts first");} state.screen=x; save(); render(); window.scrollTo(0,0); }
+
+/* ---------- Screens ---------- */
+function home(){return `
+ <div class="eyebrow">Africa Trial Startup · Nigeria</div>
+ <h1>From protocol to a Nigeria-ready submission</h1>
+ <p class="lead">We read your protocol, map it against NAFDAC and ethics committee requirements, check your submission package for gaps before you file, and run the filing and follow-up with a local team.</p>
+ <div class="drop"><b>Demo protocol: ARETTA (NCT03879577)</b>Phase II breast cancer trial at 4 Nigerian teaching hospitals. Public protocol from ClinicalTrials.gov, used here to demonstrate; IBMT Clinical is not involved in this trial.</div>
+ <div class="btn-row"><button class="btn btn-primary" id="run">Run analysis</button>${state.loaded?`<button class="btn btn-ghost" id="reset">Reset demo</button>`:""}</div>
+ <div id="reading"></div>
+ <h2>Built from official Nigerian sources</h2>
+ <div class="stack">
+  <div class="card"><b>NAFDAC</b> clinical trial application guideline: 17-document package, fees, safety reporting ${s("S1")}</div>
+  <div class="card"><b>National ethics code</b>: committee scope, national review over 3 sites, 90-day decisions ${s("S4")}</div>
+  <div class="card"><b>Committees and registry</b>: LUTH review times, Nigeria Clinical Trials Registry rules ${s("S5")} ${s("S6")}</div>
+ </div>
+ <p class="foot">Prototype. Requirements come from the public documents listed under Sources and are being verified with Nigerian regulatory experts. Not regulatory advice.</p>`;}
+function reading(){
+ const steps=["Reading the protocol (pages 1–51)","Finding sites, population, and product","Matching to NAFDAC and ethics requirements","Checking the 17-document NAFDAC package"];
+ const box=document.getElementById("reading");
+ box.innerHTML=`<div class="reading">${steps.map((x,i)=>`<div class="rline" id="r${i}"><span class="tick"></span>${x}</div>`).join("")}</div>`;
+ const d=matchMedia("(prefers-reduced-motion: reduce)").matches?0:550;
+ steps.forEach((x,i)=>setTimeout(()=>{const el=document.getElementById("r"+i); if(el){el.classList.add("done"); el.querySelector(".tick").textContent="✓";}},d*(i+1)));
+ setTimeout(()=>{state.loaded=true;state.confirmed=false;go("facts");},d*(steps.length+1));
+}
+function facts(){return `
+ <div class="eyebrow">Step 1 of 4 · Protocol</div>
+ <h1>What the protocol says, and what it's missing</h1>
+ <p class="lead">Every fact links to its protocol page. Anything not stated is flagged, not guessed.</p>
+ <div class="card">${FACTS.map(f=>`<div class="fact"><div class="k">${f.k}</div><div class="meta">${pg(f.p)}<span class="conf ${f.c==="high"?"high":f.c==="medium"?"med":"low"}">${f.c==="high"?"stated":f.c==="low"?"unclear":"partial"}</span></div><div class="v">${f.v}</div></div>`).join("")}</div>
+ <h2>6 gaps to close before filing</h2>
+ <div class="card">${GAPS.map((g,i)=>`<div class="gap"><i>${i+1}</i><div>${g}</div></div>`).join("")}</div>
+ <div class="btn-row"><button class="btn btn-primary" id="confirm">${state.confirmed?"Facts confirmed · view checklist":"Confirm facts and build checklist"}</button></div>`;}
+function checklist(){
+ const groups=[...new Set(REQS.map(r=>r.g))]; let n=0;
+ const sb={src:`<span class="badge b-src">From official source</span>`,likely:`<span class="badge b-likely">Likely · confirm</span>`,unv:`<span class="badge b-unv">Unverified</span>`};
+ return `
+ <div class="eyebrow">Step 2 of 4 · Nigeria checklist</div>
+ <h1>10 requirements, in the order they happen</h1>
+ <p class="lead">Each requirement shows why it applies to this protocol and the official source it comes from. Blue tags open the source.</p>
+ <div class="banner info"><b>Key sequence:</b> NAFDAC's package must include each site's ethics approval and meeting minutes ${s("S1","§2.5.8–10")}, so ethics approval is on the critical path before NAFDAC.</div>
+ ${groups.map(g=>`<div class="group">${g}</div><div class="stack">${REQS.filter(r=>r.g===g).map(r=>{n++;return `
+  <div class="card req"><div class="step">${n}</div><div style="min-width:0">
+   <h3>${r.name}</h3>
+   <p class="why">${r.why} ${pg(r.p)}</p>
+   <dl class="kv">${r.kv.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join("")}</dl>
+   <div class="tags">${sb[r.st]}${r.src.map(([i,sec])=>s(i,sec)).join("")}<span class="badge b-unv">Expert check pending</span></div>
+  </div></div>`}).join("")}</div>`).join("")}
+ <div class="group">Not required for this study</div>
+ <div class="stack">${NOT_REQ.map(x=>`<div class="na"><b style="color:var(--fg)">${x.name}</b><br>${x.why}</div>`).join("")}</div>
+ <div class="btn-row"><button class="btn btn-primary" data-go="package">Check the NAFDAC package</button></div>`;}
+function pkg(){
+ const c={ready:0,fix:0,need:0,gap:0,wait:0}; PKG.forEach(x=>c[x[3]]++);
+ const d=DRAFTS[state.draft];
+ const body=d.paras.map(par=>`<p>${par.map(x=>x.ph?`<span class="ph">${x.t}</span>`:`${x.b?`<b>${x.t}</b>`:x.t}${x.p&&x.p.length?pg(x.p):""}${x.src?s(x.src[0],x.src[1]):""}`).join(par.length>2||(par[0].t||"").startsWith("The Director")||(par[0].t||"").startsWith("Yours")?"<br>":" ")}</p>`).join("");
+ return `
+ <div class="eyebrow">Step 3 of 4 · Package and drafts</div>
+ <h1>NAFDAC package: 0 of 17 ready to file</h1>
+ <p class="lead">Checked against the 17 documents NAFDAC's guideline lists ${s("S1","§2.5")}. Incomplete packages are a common cause of delay; this shows exactly who owes what.</p>
+ <div class="stats">
+  <div class="stat"><div class="n" style="color:var(--crit)">${c.gap+c.fix}</div><div class="l">Gaps or fixes</div></div>
+  <div class="stat"><div class="n">${c.need}</div><div class="l">To request</div></div>
+  <div class="stat"><div class="n">${c.wait}</div><div class="l">After ethics</div></div>
+ </div>
+ <div class="card">${PKG.map((x,i)=>`<div class="pk"><span class="no">${String(i+1).padStart(2,"0")}</span><div style="min-width:0"><div class="t">${x[0]}</div><div class="d">${x[1]} · ${x[2]}</div></div><span class="pill ${PST[x[3]][0]}">${PST[x[3]][1]}</span></div>`).join("")}</div>
+ <h2>Drafts</h2>
+ <div class="chips" role="group" aria-label="Drafts">${Object.entries(DRAFTS).map(([k,v])=>`<button class="chip" data-draft="${k}" aria-pressed="${k===state.draft}">${v.label}</button>`).join("")}</div>
+ <div class="review"><span class="dot"></span>AI draft · every sentence sourced · sign-off by IBMT Clinical regulatory lead pending</div>
+ <div class="doc">${body}</div>
+ <div class="btn-row"><button class="btn btn-primary" data-go="plan">See the plan to first patient</button></div>`;}
+function plan(){return `
+ <div class="eyebrow">Step 4 of 4 · Plan</div>
+ <h1>Critical path to first patient</h1>
+ <p class="lead">Durations come from sources. Where no source gives a time yet, the bar is marked unknown instead of guessed.</p>
+ <div class="timeline">${tl()}</div>
+ <div class="legend"><span><i style="background:var(--accent)"></i>Stated time</span><span><i style="background:var(--accent);opacity:.3"></i>Up to maximum</span><span><i style="background:repeating-linear-gradient(45deg,var(--muted) 0 3px,transparent 3px 6px);border:1px solid var(--muted)"></i>Unknown, collecting data</span></div>
+ <h2>Who does what</h2>
+ <div class="tbl"><table class="who"><thead><tr><th>Step</th><th>IBMT Clinical</th><th>Sponsor</th><th>Sites</th></tr></thead><tbody>${WHO.map(r=>`<tr>${r.map((c,i)=>`<td${i===0?' style="font-weight:600"':''}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+ <h2>Tracker (example)</h2>
+ <p class="lead" style="margin-bottom:10px">How a sponsor would see this study at kickoff. Example statuses, not ARETTA's actual history.</p>
+ <div class="stack">${TRACK.map(t=>`<div class="card sub"><div style="min-width:0"><h3>${t.n}</h3></div><span class="pill ${t.st}">${t.l}</span><div class="date">${t.d}</div></div>`).join("")}</div>
+ <h2>Next: more countries</h2>
+ <div class="na">Ghana FDA, Kenya PPB, and South Africa SAHPRA country packs use the same protocol analysis. Requirements for these countries are not yet mapped.</div>
+ <p class="foot">Prototype. Sources listed under Sources. Not regulatory advice.</p>`;}
+function tl(){
+ const W=356, L=120, R=348, top=30, rowH=36, maxW=26;
+ const X=w=>L+(w/maxW)*(R-L);
+ const rows=[
+  {n:"Ethics · LUTH", note:"4–6 weeks", a:0, s:6, m:6},
+  {n:"Ethics · 3 others", note:"up to 90 days", a:0, s:0, m:13},
+  {n:"NHREC (likely)", note:"up to 90 days", a:0, s:0, m:13},
+  {n:"Sponsor gaps", note:"unknown", unk:[0,8]},
+  {n:"NAFDAC review", note:"time not published", unk:[13,22]},
+  {n:"Product supply", note:"after approval", unk:[22,25]},
+  {n:"First patient", note:"date set when known", a:25, ms:true}
+ ];
+ let g="",r="";
+ for(let w=0;w<=24;w+=4){const x=X(w);g+=`<line x1="${x}" x2="${x}" y1="${top-4}" y2="${top+rows.length*rowH}" stroke="var(--line)"/><text x="${x}" y="${top-10}" font-size="10.5" text-anchor="middle" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${w===0?"wk 0":w}</text>`;}
+ rows.forEach((o,i)=>{const y=top+i*rowH+rowH/2;
+  r+=`<text x="0" y="${y-1}" font-size="12" fill="var(--fg)" font-family="Public Sans, sans-serif" font-weight="${o.ms?700:600}">${o.n}</text><text x="0" y="${y+12}" font-size="10.5" fill="var(--muted)" font-family="Public Sans, sans-serif">${o.note}</text>`;
+  if(o.ms){r+=`<path d="M${X(o.a)} ${y-8}l8 8l-8 8l-8 -8z" fill="var(--accent)"/>`; return;}
+  if(o.unk){const a=X(o.unk[0]),b=X(o.unk[1]); r+=`<rect x="${a}" y="${y-8}" width="${b-a}" height="16" rx="4" fill="url(#hatch)" stroke="var(--muted)" stroke-width="1"/>`;}
+  else{ if(o.m>o.s) r+=`<rect x="${X(o.a)}" y="${y-8}" width="${X(o.m)-X(o.a)}" height="16" rx="4" fill="var(--accent)" fill-opacity=".28"/>`;
+        if(o.s>0) r+=`<rect x="${X(o.a)}" y="${y-8}" width="${X(o.s)-X(o.a)}" height="16" rx="4" fill="var(--accent)"/>`; }
+ });
+ const h=top+rows.length*rowH+6;
+ return `<svg viewBox="0 0 ${W} ${h}" role="img" aria-label="Critical path in weeks: ethics first, then NAFDAC, then product supply, then first patient">
+  <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="var(--surface)"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--muted)" stroke-width="1.5"/></pattern></defs>
+  ${g}${r}</svg>`;
+}
+
+/* ---------- Sheet ---------- */
+function sheet(html){const sc=document.createElement("div");sc.className="scrim";sc.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}<div class="btn-row"><button class="btn btn-ghost" data-close>Close</button></div></div>`;sc.addEventListener("click",e=>{if(e.target===sc||e.target.closest("[data-close]"))sc.remove();});document.body.appendChild(sc);sc.querySelector("[data-close]").focus();}
+function srcSheet(id){const x=SRC[id];sheet(`<div class="src"><div class="id">${id} · ${x.kind}</div><h3>${x.t}</h3><div class="meta">${x.ref}</div><a href="${x.url}" target="_blank" rel="noopener">Open document</a></div>`);}
+function allSources(){sheet(`<h3>Sources reviewed</h3><div class="meta">Public documents only. Each is being verified with Nigerian regulatory experts, and confirmed against the current official version before use in a real filing.</div>${Object.entries(SRC).map(([id,x])=>`<div class="src"><div class="id">${id} · ${x.kind}</div><b>${x.t}</b><div class="meta" style="margin:4px 0">${x.ref}</div><a href="${x.url}" target="_blank" rel="noopener">Open document</a></div>`).join("")}`);}
+
+/* ---------- Render ---------- */
+function render(){
+ const sc=state.screen;
+ app.innerHTML=({home,facts,checklist,package:pkg,plan})[sc]();
+ document.querySelectorAll(".tab").forEach(t=>{const g=t.dataset.go; if(g===sc)t.setAttribute("aria-current","page"); else t.removeAttribute("aria-current"); t.disabled=g!=="home"&&!state.loaded;});
+ document.getElementById("studyLine").hidden=!state.loaded||sc==="home";
+}
+document.addEventListener("click",e=>{
+ if(e.target.closest(".scrim")&&!e.target.closest("[data-src]"))return;
+ const g=e.target.closest("[data-go]"); if(g){go(g.dataset.go);return;}
+ const sr=e.target.closest("[data-src]"); if(sr){srcSheet(sr.dataset.src);return;}
+ const p=e.target.closest(".ptag"); if(p){toast("ARETTA protocol, page "+p.dataset.pages.split(",").join(", ")+". Full version opens the page.");return;}
+ const c=e.target.closest("[data-draft]"); if(c){state.draft=c.dataset.draft;save();render();return;}
+ if(e.target.closest("#openSources")){allSources();return;}
+ if(e.target.closest("#run")){reading();return;}
+ if(e.target.closest("#reset")){state={screen:"home",loaded:false,confirmed:false,draft:"cover"};save();render();toast("Demo reset");return;}
+ if(e.target.closest("#confirm")){state.confirmed=true;save();go("checklist");return;}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){const sc=document.querySelector(".scrim"); if(sc)sc.remove();}});
+render();
+</script>
