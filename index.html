@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IBMT Clinical | The AI-native CRO for clinical trials in Africa</title>
+<meta name="description" content="IBMT Clinical helps sponsors and CROs start and run clinical trials in Africa, from regulatory submission to trial execution.">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta property="og:title" content="IBMT Clinical">
+<meta property="og:description" content="The AI-native CRO for clinical trials in Africa.">
+<meta property="og:image" content="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#142A4A; --deep:#0E1F38; --teal:#00796B; --teal-lt:#3CC2B0;
+  --mist:#EEF2F6; --slate:#55627A; --line:#D7DEE7; --ink:#142A4A; --white:#fff;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--white);line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased}
+a{color:var(--teal)}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--teal-lt);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+h1,h2,h3{line-height:1.15;letter-spacing:-0.02em;margin:0}
+h2{font-size:clamp(28px,3.4vw,38px);font-weight:700;max-width:22ch}
+p{margin:0}
+
+/* header */
+header.top{background:var(--navy);color:var(--white)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;color:var(--white);text-decoration:none;font-weight:700;font-size:19px;letter-spacing:-0.01em}
+.brand .mark{width:6px;height:26px;border-radius:2px;background:var(--teal-lt)}
+.nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+.nav ul a{color:#C9D5E4;text-decoration:none;font-size:15px;font-weight:500}
+.nav ul a:hover{color:var(--white)}
+
+/* hero */
+.hero{background:var(--navy);color:var(--white);padding:64px 0 88px}
+.hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center}
+.hero h1{font-size:clamp(36px,5vw,58px);font-weight:700;max-width:14ch}
+.hero .lede{margin-top:22px;font-size:19px;color:#C9D5E4;max-width:46ch}
+.btns{margin-top:32px;display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 22px;border-radius:6px;font-weight:600;font-size:16px;text-decoration:none;border:2px solid transparent}
+.btn.primary{background:var(--teal-lt);color:var(--deep)}
+.btn.primary:hover{background:#5ED3C3}
+.btn.ghost{border-color:#3A5478;color:var(--white)}
+.btn.ghost:hover{border-color:#C9D5E4}
+
+/* hero services panel: the one memorable element */
+.panel{background:var(--deep);border:1px solid #23395C;border-radius:10px;padding:26px 26px 22px;margin:0}
+.panel h2{font-size:21px;line-height:1.3;letter-spacing:-0.01em;font-weight:700;max-width:none;color:var(--white)}
+.panel .sub{color:#9FB1C8;font-size:14px;margin:6px 0 14px}
+.panel ul{list-style:none;margin:0;padding:0}
+.panel li{display:grid;grid-template-columns:20px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid #1E3456}
+.panel li:first-child{border-top:0}
+.panel li svg{width:18px;height:18px}
+.panel li span{font-size:15.5px;color:#E6EDF6;font-weight:500}
+.panel li.lead span{font-weight:600;color:var(--white)}
+.panel li em{font-style:normal;font-size:12.5px;font-weight:600;color:var(--deep);background:var(--teal-lt);padding:3px 8px;border-radius:4px;white-space:nowrap}
+.panel .foot{margin-top:14px;padding-top:14px;border-top:1px dashed #33507A;font-size:14px;color:#C9D5E4;line-height:1.5}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* sections */
+section{padding:88px 0}
+section.alt{background:var(--mist)}
+.intro{margin-top:16px;color:var(--slate);max-width:62ch;font-size:18px}
+
+/* problem */
+.problem .wrap{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.problem .body p+p{margin-top:16px}
+.problem .body p{color:var(--slate);max-width:56ch}
+.compare{display:grid;gap:26px}
+.compare .row .lbl{display:flex;justify-content:space-between;font-size:15px;font-weight:500;margin-bottom:8px}
+.compare .row .lbl strong{font-size:22px;font-weight:700;letter-spacing:-0.01em}
+.meter{height:22px;background:var(--white);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--navy)}
+.meter.t i{background:var(--teal)}
+.compare small{color:var(--slate);font-size:13px}
+
+/* services */
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:48px}
+.services div{border-top:3px solid var(--teal);padding-top:20px}
+.services h3{font-size:20px;font-weight:600;margin-bottom:10px}
+.services p{color:var(--slate);font-size:16px}
+.services .later{border-top-color:var(--line)}
+.services .tag.ai{background:#DFF5F1;color:#00695C;font-weight:600}
+.services .tag{display:inline-block;margin-left:8px;font-size:12.5px;font-weight:500;color:var(--slate);background:var(--mist);padding:2px 8px;border-radius:4px;vertical-align:middle}
+
+/* steps (a real sequence) */
+.steps{list-style:none;margin:48px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding-left:56px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:-2px;width:38px;height:38px;border-radius:50%;background:var(--navy);color:var(--white);display:grid;place-items:center;font-weight:600;font-size:16px}
+.steps h3{font-size:19px;font-weight:600;margin-bottom:8px}
+.steps p{color:var(--slate);font-size:16px}
+
+/* founder */
+.founder .wrap{display:grid;grid-template-columns:200px 1fr;gap:48px;align-items:start}
+.founder img{width:200px;height:200px;border-radius:50%;object-fit:cover;display:block}
+.founder h3{font-size:24px;font-weight:700}
+.founder .role{color:var(--slate);font-weight:500;margin-top:4px}
+.founder .bio{margin-top:18px;max-width:64ch;color:#2B3E5C}
+.founder .bio p+p{margin-top:14px}
+
+/* contact */
+.contact .wrap{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.contact .mail{margin-top:20px;font-size:19px;font-weight:600}
+form{display:grid;gap:14px}
+label{font-size:14px;font-weight:600;display:grid;gap:6px}
+input,textarea{font:inherit;font-size:16px;padding:12px 14px;border:1px solid #BFCAD8;border-radius:6px;background:var(--white);color:var(--ink)}
+textarea{min-height:130px;resize:vertical}
+button{font:inherit;font-weight:600;font-size:16px;padding:13px 22px;border:0;border-radius:6px;background:var(--navy);color:var(--white);cursor:pointer;justify-self:start}
+button:hover{background:#1E3A63}
+.hp{position:absolute;left:-9999px}
+#form-status{margin:0;font-size:15px;font-weight:500}
+#form-status.ok{color:#00695C}
+#form-status.err{color:#B3261E}
+button:disabled{opacity:.7;cursor:wait}
+
+footer{background:var(--deep);color:#9FB1C8;padding:32px 0;font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer a{color:#C9D5E4}
+
+@media (max-width:900px){
+  .hero .wrap,.problem .wrap,.contact .wrap{grid-template-columns:1fr;gap:40px}
+  .services,.steps{grid-template-columns:1fr;gap:32px}
+  .founder .wrap{grid-template-columns:1fr;gap:24px}
+  .founder img{width:150px;height:150px}
+  .nav ul{display:none}
+  section{padding:64px 0}
+  .hero{padding:40px 0 64px}
+}
+@media (max-width:480px){
+  .panel{padding:20px 18px 16px}
+  .panel li{grid-template-columns:20px 1fr}
+  .panel li em{grid-column:2;justify-self:start}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap nav">
+    <a class="brand" href="#"><span class="mark" aria-hidden="true"></span>IBMT Clinical</a>
+    <nav aria-label="Main"><ul>
+      <li><a href="#why">Why Africa</a></li>
+      <li><a href="#services">What we do</a></li>
+      <li><a href="#team">Team</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul></nav>
+  </div>
+</header>
+
+<main>
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <h1>The AI-native CRO for clinical trials in Africa</h1>
+      <p class="lede">We help sponsors and CROs start and run clinical trials in Africa, from regulatory submission to trial execution.</p>
+      <div class="btns">
+        <a class="btn primary" href="#contact">Talk to us about a study</a>
+        <a class="btn ghost" href="#services">See what we do</a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Your gateway to faster, decentralized clinical trials in Africa</h2>
+      <p class="sub">One partner from first submission to final data.</p>
+      <ul>
+        <li class="lead"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#3CC2B0"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#0E1F38" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Regulatory preparation and submissions</span><em>AI + expert review</em></li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#3CC2B0"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#0E1F38" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Site readiness and activation</span></li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#3CC2B0"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#0E1F38" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Trial supply management</span></li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#3CC2B0"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#0E1F38" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Patient recruitment</span></li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#3CC2B0"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#0E1F38" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Electronic data capture</span></li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#3CC2B0"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#0E1F38" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Data monitoring</span></li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#3CC2B0"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#0E1F38" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Biostatistical analysis</span></li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#3CC2B0"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#0E1F38" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Clinical development consulting</span></li>
+      </ul>
+      <p class="foot">Built for African sites, and designed to plug into the systems sponsors already use, so your team doesn't have to switch tools.</p>
+    </div>
+  </div>
+</div>
+
+<section class="problem alt" id="why">
+  <div class="wrap">
+    <div class="body">
+      <h2>Africa carries a large share of disease but few of the trials</h2>
+      <p class="intro">The continent faces a dual burden: infectious diseases such as malaria, HIV and tuberculosis, alongside rising rates of cancer and cardiovascular disease.</p>
+      <p style="margin-top:16px">Too few trials means patients wait longer for new treatments, and the world's most genetically diverse populations are underrepresented in the data behind new medicines. A major reason is that regulatory approvals and site readiness are slow and hard to predict.</p>
+    </div>
+    <div class="compare" aria-label="Comparison of Africa's share of global disease burden and of clinical trials">
+      <div class="row">
+        <div class="lbl"><span>Share of global disease burden</span><strong>~25%</strong></div>
+        <div class="meter"><i style="width:25%"></i></div>
+      </div>
+      <div class="row">
+        <div class="lbl"><span>Share of global clinical trials</span><strong>&lt;4%</strong></div>
+        <div class="meter t"><i style="width:4%"></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <h2>What we do</h2>
+    <p class="intro">Faster startup, reliable operations and technology that works on the ground.</p>
+    <div class="services">
+      <div>
+        <h3>Study startup<span class="tag ai">AI + expert review</span></h3>
+        <p>Ethics, regulatory and registry submissions prepared complete and first-time-right, then tracked to approval against one timeline.</p>
+      </div>
+      <div>
+        <h3>Trial operations<span class="tag">Building now</span></h3>
+        <p>Site activation, trial supply, patient recruitment and monitoring, run by our own clinical operations team to international GCP standards.</p>
+      </div>
+      <div>
+        <h3>Technology that fits your workflow</h3>
+        <p>Electronic data capture built for African sites, including low-bandwidth settings, and designed to connect with the systems sponsors already use.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="intro">AI does the heavy lifting. People make the decisions.</p>
+    <ol class="steps">
+      <li>
+        <h3>AI prepares</h3>
+        <p>Our AI maps your protocol to each country's regulatory and ethics requirements, drafts the submission package and flags gaps before they turn into queries.</p>
+      </li>
+      <li>
+        <h3>Experts review</h3>
+        <p>Regulatory specialists with local experience check every document before it's submitted. Nothing goes out on AI alone.</p>
+      </li>
+      <li>
+        <h3>Our local team delivers</h3>
+        <p>We submit and follow through to approval, then activate sites and recruit patients, with timelines you can track in one dashboard.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="founder" id="team">
+  <div class="wrap">
+    <img src="headshot.jpg" alt="Toheeb Balogun" width="200" height="200">
+    <div>
+      <h3>Toheeb Balogun</h3>
+      <p class="role">Founder and CEO</p>
+      <div class="bio">
+        <p>Toheeb is a fifth-year PhD candidate at the University of California, San Diego, where his research uses AI and computer-aided drug design to accelerate drug discovery. His work on the dynamics of a bat coronavirus is published in <em>Biophysical Journal</em> (Cell Press). He also brings about two years of industry drug discovery experience across small molecules and peptides, and has received multiple academic awards and fellowships.</p>
+        <p>Born and raised in Nigeria, Toheeb combines deep local knowledge with international scientific training. He is GCP-certified and founded IBMT Clinical to make Africa a predictable, high-quality place to run clinical trials, and to build lasting research capacity across the continent.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact alt" id="contact">
+  <div class="wrap">
+    <div>
+      <h2>Planning a study in Africa?</h2>
+      <p class="intro">Tell us about your protocol, timeline and countries of interest. We'll reply within two business days.</p>
+      <p class="mail"><a href="mailto:info@ibmtclinical.com">info@ibmtclinical.com</a></p>
+    </div>
+    <form id="contact-form" action="https://formspree.io/f/xdeapzjr" method="POST">
+      <input type="hidden" name="_subject" value="New enquiry from ibmtclinical.com">
+      <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <label>Name<input name="name" autocomplete="name" required></label>
+      <label>Work email<input type="email" name="email" autocomplete="email" required></label>
+      <label>Organization<input name="organization" autocomplete="organization"></label>
+      <label>How can we help?<textarea name="message" required></textarea></label>
+      <button type="submit">Send message</button>
+      <p id="form-status" role="status" aria-live="polite"></p>
+    </form>
+    <script>
+    (function(){
+      var f=document.getElementById('contact-form'), st=document.getElementById('form-status'), btn=f.querySelector('button');
+      f.addEventListener('submit', function(e){
+        e.preventDefault(); btn.disabled=true; btn.textContent='Sending…'; st.className=''; st.textContent='';
+        fetch(f.action,{method:'POST',body:new FormData(f),headers:{'Accept':'application/json'}})
+          .then(function(r){ if(!r.ok) throw new Error(); f.reset(); st.className='ok'; st.textContent='Message sent. We\'ll reply within two business days.'; })
+          .catch(function(){ st.className='err'; st.textContent='Your message didn\'t send. Please try again or email info@ibmtclinical.com.'; })
+          .finally(function(){ btn.disabled=false; btn.textContent='Send message'; });
+      });
+    })();
+    </script>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 IBMT Clinical. San Diego, California.</span>
+    <a href="mailto:info@ibmtclinical.com">info@ibmtclinical.com</a>
+  </div>
+</footer>
+</body>
+</html>
