@@ -15,7 +15,7 @@
 :root{
   --bg:#f6f7f9; --surface:#ffffff; --surface-2:#eef1f4;
   --fg:#0f1419; --muted:#5a6673; --faint:#8b96a2; --line:#dde2e8;
-  --accent:#a8650c; --accent-soft:#f3e4cd;
+  --accent:#a8650c; --accent-soft:#f3e4cd; --accent-ink:#ffffff;
   --tox:#9e2f28; --tox-soft:#f0dad7;
   --win:#2f6b45; --win-soft:#dcebe1;
   --sub:#4d6388; --sub-soft:#dde3ed;
@@ -26,7 +26,7 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0c1016; --surface:#141a22; --surface-2:#1b222c;
   --fg:#e7ecf2; --muted:#93a0ae; --faint:#6b7886; --line:#232c38;
-  --accent:#d99a3f; --accent-soft:#3a2f1c;
+  --accent:#d99a3f; --accent-soft:#3a2f1c; --accent-ink:#1a1206;
   --tox:#dd6b60; --tox-soft:#3a211e;
   --win:#5fb07a; --win-soft:#17301f;
   --sub:#8ba3cc; --sub-soft:#1c2433;
@@ -35,7 +35,7 @@
 :root[data-theme="dark"]{
   --bg:#0c1016; --surface:#141a22; --surface-2:#1b222c;
   --fg:#e7ecf2; --muted:#93a0ae; --faint:#6b7886; --line:#232c38;
-  --accent:#d99a3f; --accent-soft:#3a2f1c;
+  --accent:#d99a3f; --accent-soft:#3a2f1c; --accent-ink:#1a1206;
   --tox:#dd6b60; --tox-soft:#3a211e;
   --win:#5fb07a; --win-soft:#17301f;
   --sub:#8ba3cc; --sub-soft:#1c2433;
@@ -45,7 +45,7 @@
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.5;
   -webkit-font-smoothing:antialiased}
-.wrap{max-width:1080px;margin:0 auto;
+.wrap{max-width:1180px;margin:0 auto;
   padding-left:max(16px,env(safe-area-inset-left,0px));
   padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-block:28px 56px}
@@ -91,7 +91,9 @@ input[type=range]{width:100%;accent-color:var(--accent);height:24px;margin:0;dis
   border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);
   cursor:pointer;transition:background .13s,border-color .13s;white-space:nowrap}
 .presets button:hover{border-color:var(--accent)}
-.presets button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+/* White on the dark-mode accent is about 2:1, so the ink follows the theme. */
+.presets button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);
+  color:var(--accent-ink)}
 .presets button:focus-visible,input:focus-visible,.tabs button:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px}
 
