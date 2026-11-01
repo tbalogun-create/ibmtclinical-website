@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>IBMT Clinical — Demos</title>
+<meta name="description" content="Pharmacogenomic dose simulation and regulatory drafting for African clinical trials.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --surface-2:#eef1f4;
+  --fg:#0f1419; --muted:#5a6673; --faint:#8b96a2; --line:#dde2e8;
+  --accent:#a8650c; --accent-soft:#f3e4cd;
+  --win:#2f6b45;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+  --serif:'IBM Plex Serif',Georgia,serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c1016; --surface:#141a22; --surface-2:#1b222c;
+  --fg:#e7ecf2; --muted:#93a0ae; --faint:#6b7886; --line:#232c38;
+  --accent:#d99a3f; --accent-soft:#3a2f1c; --win:#5fb07a;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0c1016; --surface:#141a22; --surface-2:#1b222c;
+  --fg:#e7ecf2; --muted:#93a0ae; --faint:#6b7886; --line:#232c38;
+  --accent:#d99a3f; --accent-soft:#3a2f1c; --win:#5fb07a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);
+  line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:48px 64px}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.brand b{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:-.01em}
+.brand span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);
+  font-weight:500}
+h1{font-family:var(--serif);font-size:clamp(27px,5vw,38px);font-weight:600;
+  letter-spacing:-.02em;line-height:1.14;margin:0;text-wrap:balance}
+.lede{color:var(--muted);font-size:15.5px;max-width:60ch;margin-top:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:16px;margin-top:34px}
+a.card{display:block;background:var(--surface);border:1px solid var(--line);
+  border-radius:11px;padding:21px 22px 19px;text-decoration:none;color:inherit;
+  transition:border-color .14s,transform .14s}
+a.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+a.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.k{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);
+  font-weight:600;font-family:var(--mono)}
+.card h2{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em;
+  margin:8px 0 7px}
+.card p{margin:0;font-size:13.5px;color:var(--muted)}
+.card ul{margin:11px 0 0;padding-left:17px;font-size:13px;color:var(--muted)}
+.card li{margin-bottom:3px}
+.card li b{color:var(--fg);font-weight:600}
+.go{display:inline-block;margin-top:13px;font-size:13px;font-weight:600;color:var(--accent)}
+section{margin-top:40px}
+h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:0 0 9px}
+p.note{color:var(--muted);font-size:13.5px;margin:0 0 9px;max-width:68ch}
+code{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);
+  padding:2px 6px;border-radius:4px}
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--faint)}
+footer a{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand"><b>IBMT Clinical</b><span>Demos</span></div>
+  <h1>Trials designed for the patients who will be in them</h1>
+  <p class="lede">Two working prototypes. The first predicts how a drug behaves in West
+    African patients before a trial runs. The second turns that prediction, plus a sponsor's
+    protocol, into a Nigerian regulatory submission.</p>
+
+  <div class="cards">
+
+    <a class="card" href="simulator/">
+      <span class="k">01 · Prediction</span>
+      <h2>Pharmacogenomic Dose Simulator</h2>
+      <p>Two gene&ndash;drug pairs where the standard dose lands differently in West African
+        and European patients &mdash; in opposite directions.</p>
+      <ul>
+        <li><b>Efavirenz</b> &middot; CYP2B6, over-exposure</li>
+        <li><b>Tacrolimus</b> &middot; CYP3A5, under-exposure</li>
+        <li>Validated against CPIC dosing guidelines that were <b>not used in fitting</b></li>
+      </ul>
+      <span class="go">Open the simulator &rarr;</span>
+    </a>
+
+    <a class="card" href="regulatory/">
+      <span class="k">02 · Submission</span>
+      <h2>Regulatory Drafting</h2>
+      <p>Reads a sponsor protocol and builds the Nigerian submission package, with every
+        requirement traced to the public document it came from.</p>
+      <ul>
+        <li>10 requirements in the order they happen</li>
+        <li>NAFDAC's <b>17-document package</b>, with the gaps named</li>
+        <li>Drafts carry a human sign-off step</li>
+      </ul>
+      <span class="go">Open the regulatory demo &rarr;</span>
+    </a>
+
+  </div>
+
+  <section>
+    <h3>The model</h3>
+    <p class="note">Every number on the simulator page comes from
+      <code>model/model.py</code>, which fits both drugs on published concentration data and
+      then checks the result against dosing guidelines it never saw. Run it yourself:</p>
+    <p class="note"><code>pip install -r model/requirements.txt &amp;&amp; python3 model/model.py</code></p>
+    <p class="note">The calibration table on the simulator page separates the quantities that
+      set the parameters from the ones held out, because only the second group tests anything.</p>
+  </section>
+
+  <footer>IBMT Clinical &middot; prototypes, not regulatory or medical advice &middot;
+    <a href="https://ibmtclinical.com">ibmtclinical.com</a></footer>
+
+</div>
+</body>
+</html>
