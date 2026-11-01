@@ -168,16 +168,19 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surfa
   header.top{order:0;position:static}
   nav.tabs{order:1;position:sticky;top:0;bottom:auto;
     border-top:0;border-bottom:1px solid var(--line);background:var(--bg)}
-  main.wrap{order:2;padding-block:6px 64px}
+  /* width:100% is load-bearing. body is a flex column (to reorder the tab bar), and a
+     flex item with margin:0 auto stops stretching and shrinks to fit its content — which
+     silently collapsed this column to about half the page. */
+  main.wrap{order:2;width:100%;padding-block:6px 64px}
   .wrap,.top-inner,.tabs-inner,.study-line{max-width:1560px}
   .wrap,.top-inner,.study-line{padding-inline:clamp(20px,3vw,48px)}
   .top-inner{padding-block:16px 12px}
   .study-line{padding-bottom:12px}
-  .tabs-inner{padding-inline:clamp(12px,3vw,40px)}
   /* This page is read, not scanned: let the cards widen but hold the prose to a
      comfortable measure rather than running 200-character lines on a wide monitor. */
-  .why,.lead{max-width:84ch}
-  .tabs-inner{grid-template-columns:repeat(4,max-content);gap:2px;padding-inline:8px}
+  .why,.lead{max-width:88ch}
+  .tabs-inner{grid-template-columns:repeat(4,max-content);gap:2px;
+    padding-inline:clamp(12px,3vw,40px)}
   .tab{flex-direction:row;gap:8px;font-size:13.5px;padding:13px 16px;min-height:0;
     border-bottom:2px solid transparent}
   .tab svg{width:18px;height:18px}
@@ -188,10 +191,12 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surfa
   .stats{gap:14px}
 }
 /* Scale the whole page on large screens, as the other two demo pages do. */
-@media(min-width:1500px){:root{zoom:1.08}}
-@media(min-width:1800px){:root{zoom:1.18}}
-@media(min-width:2200px){:root{zoom:1.30}}
-@media(min-width:2800px){:root{zoom:1.45}}
+@media(min-width:1200px){:root{zoom:1.06}}
+@media(min-width:1360px){:root{zoom:1.14}}
+@media(min-width:1500px){:root{zoom:1.22}}
+@media(min-width:1700px){:root{zoom:1.30}}
+@media(min-width:2000px){:root{zoom:1.38}}
+@media(min-width:2400px){:root{zoom:1.48}}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 /* print: only the draft itself, with a header identifying it */
 .printhead{display:none}
