@@ -45,9 +45,12 @@
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.5;
   -webkit-font-smoothing:antialiased}
-.wrap{max-width:1180px;margin:0 auto;
-  padding-left:max(16px,env(safe-area-inset-left,0px));
-  padding-right:max(16px,env(safe-area-inset-right,0px));
+/* Fluid: fills the viewport with gutters that grow with it, capped so an ultrawide
+   monitor doesn't stretch the tables to absurdity. Prose blocks keep their own ch caps
+   below, so only the charts, tables and cards take the extra width. */
+.wrap{max-width:1680px;margin:0 auto;
+  padding-left:max(clamp(16px,3vw,48px),env(safe-area-inset-left,0px));
+  padding-right:max(clamp(16px,3vw,48px),env(safe-area-inset-right,0px));
   padding-block:28px 56px}
 h1,h2,h3{margin:0;text-wrap:balance}
 
@@ -77,6 +80,21 @@ h1{font-family:var(--serif);font-size:clamp(25px,4.4vw,36px);font-weight:600;let
   padding:18px 20px;margin-top:14px;
   display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px 28px;align-items:end}
 @media(max-width:660px){.rail{grid-template-columns:1fr;align-items:stretch}}
+/* Big screens: scale the whole page rather than only widening it, so the extra room
+   buys larger text and charts instead of longer lines. Zoom keeps every proportion
+   intact — raising font sizes alone would leave padding and charts behind. */
+@media(min-width:1500px){:root{zoom:1.08}}
+@media(min-width:1800px){:root{zoom:1.18}}
+@media(min-width:2200px){:root{zoom:1.30}}
+@media(min-width:2800px){:root{zoom:1.45}}
+/* Wide screens: set the lede beside the title instead of under it, so the top of the
+   page carries the width the rest of the layout does. Prose keeps its own measure. */
+@media(min-width:1100px){
+  header{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+    column-gap:56px;align-items:end}
+  .brand{grid-column:1/-1}
+  .lede{margin-top:0;padding-bottom:5px}
+}
 .ctl-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);
   font-weight:600;display:block;margin-bottom:9px}
 .dose-head{display:flex;align-items:baseline;gap:9px;margin-bottom:4px}
