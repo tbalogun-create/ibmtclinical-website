@@ -8,26 +8,27 @@
 <title>IBMT Clinical | Trial startup demo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap">
 <style>
 /* Layout: one-column phone app; sticky header; bottom tab bar; every regulatory claim carries a source chip that opens a source sheet */
 :root{
-  --bg:#f3f6f5; --surface:#ffffff; --fg:#14211f; --muted:#5b6b68; --line:#d9e2e0;
-  --accent:#0f6b5c; --accent-soft:#e1f0ec; --accent-ink:#ffffff;
-  --good:#1f7a3f; --good-soft:#e3f3e8; --warn:#9a6200; --warn-soft:#fbefd9; --crit:#b3261e; --crit-soft:#fbe4e2; --info:#2d5ea8; --info-soft:#e4ecf9;
-  --font-ui:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --bg:#f6f7f9; --surface:#ffffff; --fg:#0f1419; --muted:#5a6673; --line:#dde2e8;
+  --accent:#a8650c; --accent-soft:#f3e4cd; --accent-ink:#ffffff;
+  --good:#2f6b45; --good-soft:#dcebe1; --warn:#74497e; --warn-soft:#ece1f0; --crit:#9e2f28; --crit-soft:#f0dad7; --info:#4d6388; --info-soft:#dde3ed;
+  --font-ui:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+  --font-serif:'IBM Plex Serif',Georgia,serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
   --r:12px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0e1514; --surface:#16201e; --fg:#e6efed; --muted:#9db0ac; --line:#2a3836;
-  --accent:#4cc2a8; --accent-soft:#163a33; --accent-ink:#06201b;
-  --good:#6fd38f; --good-soft:#173322; --warn:#f0b54a; --warn-soft:#3a2a0d; --crit:#ff8a80; --crit-soft:#3d1916; --info:#8cb4f5; --info-soft:#17263f;
+  --bg:#0c1016; --surface:#141a22; --fg:#e7ecf2; --muted:#93a0ae; --line:#232c38;
+  --accent:#d99a3f; --accent-soft:#3a2f1c; --accent-ink:#1a1206;
+  --good:#5fb07a; --good-soft:#17301f; --warn:#c295cf; --warn-soft:#2f2236; --crit:#dd6b60; --crit-soft:#3a211e; --info:#8ba3cc; --info-soft:#1c2433;
   color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e1514; --surface:#16201e; --fg:#e6efed; --muted:#9db0ac; --line:#2a3836;
-  --accent:#4cc2a8; --accent-soft:#163a33; --accent-ink:#06201b;
-  --good:#6fd38f; --good-soft:#173322; --warn:#f0b54a; --warn-soft:#3a2a0d; --crit:#ff8a80; --crit-soft:#3d1916; --info:#8cb4f5; --info-soft:#17263f;
+  --bg:#0c1016; --surface:#141a22; --fg:#e7ecf2; --muted:#93a0ae; --line:#232c38;
+  --accent:#d99a3f; --accent-soft:#3a2f1c; --accent-ink:#1a1206;
+  --good:#5fb07a; --good-soft:#17301f; --warn:#c295cf; --warn-soft:#2f2236; --crit:#dd6b60; --crit-soft:#3a211e; --info:#8ba3cc; --info-soft:#1c2433;
   color-scheme:dark}
 *{box-sizing:border-box}
 html,body{background:var(--bg)}
@@ -35,14 +36,14 @@ body{color:var(--fg);font-family:var(--font-ui);font-size:15px;line-height:1.5;-
 .wrap{max-width:720px;margin:0 auto;padding-inline:16px;padding-block:0 104px}
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
 .top-inner{max-width:720px;margin:0 auto;padding:12px 16px 10px;display:flex;align-items:center;gap:10px}
-.brand{font-weight:800;letter-spacing:-.01em;font-size:16px}
+.brand{font-family:var(--font-serif);font-weight:600;letter-spacing:-.01em;font-size:16px}
 .brand span{color:var(--accent)}
 .hdr-btn{margin-left:auto;appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:600 12px/1 var(--font-ui);padding:7px 10px;border-radius:999px;cursor:pointer}
 .proto{font:500 11px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--warn);background:var(--warn-soft);padding:5px 8px;border-radius:999px}
 .study-line{max-width:720px;margin:0 auto;padding:0 16px 10px;font-size:12.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap}
 .study-line b{color:var(--fg);font-weight:600}
-h1{font-size:24px;line-height:1.2;letter-spacing:-.02em;margin:22px 0 6px;text-wrap:balance}
-h2{font-size:17px;margin:24px 0 8px;letter-spacing:-.01em;text-wrap:balance}
+h1{font-family:var(--font-serif);font-weight:600;font-size:25px;line-height:1.18;letter-spacing:-.02em;margin:22px 0 6px;text-wrap:balance}
+h2{font-family:var(--font-serif);font-weight:600;font-size:18px;margin:24px 0 8px;letter-spacing:-.01em;text-wrap:balance}
 p.lead{color:var(--muted);margin:0 0 16px;max-width:60ch}
 .eyebrow{font:500 11px/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-top:22px}
 .banner{background:var(--warn-soft);border-radius:var(--r);padding:10px 12px;font-size:13px;margin:12px 0}
@@ -157,6 +158,30 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surfa
 .dc-list{margin:0;padding:0 14px 14px 32px;font-size:13.5px;line-height:1.6}
 .dc-list li{margin-bottom:8px} .dc-list li:last-child{margin-bottom:0}
 .link{appearance:none;border:0;background:none;color:var(--accent);font:600 13px/1 var(--font-ui);padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+/* Desktop. This page was authored as a phone app: 720px column, fixed bottom tab bar,
+   bottom sheets. On a laptop that reads as a stretched phone, so above 900px the column
+   widens, the tab bar moves to a sticky strip under the header (body becomes a flex
+   column purely to reorder it, since it sits last in the DOM), and sheets become
+   centred dialogs. Everything below 900px is untouched. */
+@media (min-width:900px){
+  body{display:flex;flex-direction:column;min-height:100vh}
+  header.top{order:0;position:static}
+  nav.tabs{order:1;position:sticky;top:0;bottom:auto;
+    border-top:0;border-bottom:1px solid var(--line);background:var(--bg)}
+  main.wrap{order:2;padding-block:6px 64px;padding-inline:24px}
+  .wrap,.top-inner,.tabs-inner,.study-line{max-width:1080px}
+  .top-inner{padding:16px 24px 12px}
+  .study-line{padding:0 24px 12px}
+  .tabs-inner{grid-template-columns:repeat(4,max-content);gap:2px;padding-inline:8px}
+  .tab{flex-direction:row;gap:8px;font-size:13.5px;padding:13px 16px;min-height:0;
+    border-bottom:2px solid transparent}
+  .tab svg{width:18px;height:18px}
+  .tab[aria-current="page"]{border-bottom-color:var(--accent)}
+  .scrim{align-items:center}
+  .sheet{max-width:620px;max-height:78vh;border-radius:14px;padding:22px 24px}
+  .toast{bottom:28px}
+  .stats{gap:14px}
+}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 /* print: only the draft itself, with a header identifying it */
 .printhead{display:none}
