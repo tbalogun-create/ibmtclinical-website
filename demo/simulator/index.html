@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Predicted efavirenz and tacrolimus exposure in West African versus European patients, validated against CPIC dosing guidelines that were not used in fitting.">
+<title>Pharmacogenomic Dose Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap">
+
+<style>
+/* Layout: instrument panel — drug tabs, dose rail, paired cohort readouts, evidence below. */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --surface-2:#eef1f4;
+  --fg:#0f1419; --muted:#5a6673; --faint:#8b96a2; --line:#dde2e8;
+  --accent:#a8650c; --accent-soft:#f3e4cd;
+  --tox:#9e2f28; --tox-soft:#f0dad7;
+  --win:#2f6b45; --win-soft:#dcebe1;
+  --sub:#4d6388; --sub-soft:#dde3ed;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+  --serif:'IBM Plex Serif',Georgia,serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c1016; --surface:#141a22; --surface-2:#1b222c;
+  --fg:#e7ecf2; --muted:#93a0ae; --faint:#6b7886; --line:#232c38;
+  --accent:#d99a3f; --accent-soft:#3a2f1c;
+  --tox:#dd6b60; --tox-soft:#3a211e;
+  --win:#5fb07a; --win-soft:#17301f;
+  --sub:#8ba3cc; --sub-soft:#1c2433;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0c1016; --surface:#141a22; --surface-2:#1b222c;
+  --fg:#e7ecf2; --muted:#93a0ae; --faint:#6b7886; --line:#232c38;
+  --accent:#d99a3f; --accent-soft:#3a2f1c;
+  --tox:#dd6b60; --tox-soft:#3a211e;
+  --win:#5fb07a; --win-soft:#17301f;
+  --sub:#8ba3cc; --sub-soft:#1c2433;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.5;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:28px 56px}
+h1,h2,h3{margin:0;text-wrap:balance}
+
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.brand b{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:-.01em}
+.brand span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);
+  font-weight:500}
+h1{font-family:var(--serif);font-size:clamp(25px,4.4vw,36px);font-weight:600;letter-spacing:-.02em;
+  line-height:1.15}
+.lede{color:var(--muted);font-size:15px;max-width:62ch;margin-top:10px}
+
+/* drug tabs */
+.tabs{display:flex;gap:8px;margin-top:24px;flex-wrap:wrap}
+.tabs button{font-family:var(--sans);text-align:left;padding:11px 16px;border-radius:9px;
+  border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;
+  transition:border-color .13s,background .13s;min-width:0}
+.tabs button:hover{border-color:var(--accent)}
+.tabs button[aria-selected=true]{border-color:var(--accent);background:var(--accent-soft)}
+.tabs .t-n{font-size:14.5px;font-weight:600;letter-spacing:-.01em;display:block}
+.tabs .t-g{font-size:11.5px;color:var(--muted);font-family:var(--mono);display:block;margin-top:1px}
+.tabs button[aria-selected=true] .t-g{color:var(--accent)}
+.dir{font-size:13.5px;color:var(--muted);margin-top:14px;max-width:68ch}
+.dir b{color:var(--fg);font-weight:600}
+
+/* control rail */
+.rail{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:18px 20px;margin-top:14px;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px 28px;align-items:end}
+@media(max-width:660px){.rail{grid-template-columns:1fr;align-items:stretch}}
+.ctl-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);
+  font-weight:600;display:block;margin-bottom:9px}
+.dose-head{display:flex;align-items:baseline;gap:9px;margin-bottom:4px}
+.dose-val{font-family:var(--mono);font-size:30px;font-weight:600;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;color:var(--accent)}
+.dose-unit{font-size:13px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent);height:24px;margin:0;display:block}
+.ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;
+  color:var(--faint);margin-top:1px;font-variant-numeric:tabular-nums}
+.presets{display:flex;gap:7px;flex-wrap:wrap}
+.presets button{font-family:var(--sans);font-size:12.5px;font-weight:500;padding:7px 13px;
+  border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);
+  cursor:pointer;transition:background .13s,border-color .13s;white-space:nowrap}
+.presets button:hover{border-color:var(--accent)}
+.presets button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.presets button:focus-visible,input:focus-visible,.tabs button:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px}
+
+/* variant toggle */
+.vbar{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:14px 18px;margin-top:14px;display:flex;flex-wrap:wrap;gap:12px 20px;
+  align-items:center;justify-content:space-between}
+/* A drug with no second locus renders no content here; :empty beats .vbar on specificity,
+   so this cannot be defeated by a host reset the way [hidden] can. */
+.vbar:empty{display:none}
+.vbar .vl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vbar .vt{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);
+  font-weight:600}
+.vbar .delta{font-family:var(--mono);font-size:12.5px;color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.vbar .delta b{color:var(--tox);font-weight:600}
+.vbar .delta i{font-style:normal;color:var(--faint)}
+
+/* cohorts */
+.cohorts{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;
+  margin-top:16px}
+.cohort{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:17px 19px 15px;min-width:0}
+.cohort.flag{border-color:var(--tox)}
+.c-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  padding-bottom:11px;border-bottom:1px solid var(--line)}
+.c-name{font-size:16px;font-weight:600;letter-spacing:-.01em}
+select.psel{font-family:var(--sans);font-size:16px;font-weight:600;letter-spacing:-.01em;
+  color:var(--fg);background:transparent;border:0;border-bottom:1.5px dashed var(--line);
+  padding:0 18px 2px 0;margin:0;cursor:pointer;max-width:100%;
+  appearance:none;-webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),
+    linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 7px) calc(50% + 1px),calc(100% - 3px) calc(50% + 1px);
+  background-size:4px 4px,4px 4px;background-repeat:no-repeat}
+select.psel:hover{border-bottom-color:var(--accent)}
+select.psel:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select.psel option{background:var(--surface);color:var(--fg);font-weight:400}
+.missing{font-size:12.5px;color:var(--muted);padding:26px 4px;text-align:center}
+.missing b{display:block;color:var(--tox);font-weight:600;margin-bottom:4px}
+.c-sub{font-size:11.5px;color:var(--faint);margin-top:2px}
+.c-med{font-family:var(--mono);font-size:14px;font-weight:500;text-align:right;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.c-med em{display:block;font-style:normal;font-size:10px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--faint);font-family:var(--sans);font-weight:600}
+svg.dist{width:100%;height:auto;display:block;margin:12px 0 6px;overflow:visible}
+.bars{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:9px}
+.bar{background:var(--surface);padding:9px 10px;min-width:0}
+.bar .k{font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+  display:flex;align-items:center;gap:5px;color:var(--faint)}
+.dot{width:7px;height:7px;border-radius:2px;flex:none}
+.bar .v{font-family:var(--mono);font-size:19px;font-weight:600;margin-top:3px;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.safety{margin-top:9px;font-size:11.5px;color:var(--muted);font-family:var(--mono);
+  font-variant-numeric:tabular-nums;display:flex;justify-content:space-between;gap:10px;
+  padding:7px 10px;background:var(--surface-2);border-radius:6px}
+.safety.breach{color:var(--tox);font-weight:600}
+
+section{margin-top:34px}
+h2{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em}
+.note{color:var(--muted);font-size:13.5px;margin:7px 0 0;max-width:68ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  margin-top:13px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line)}
+thead th{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);
+  font-weight:600;background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:0}
+/* Group bands in the calibration table. The fitted rows match by construction and carry no
+   evidential weight; without this divider the exact matches read as overfitting rather than
+   as the disclosure they are. */
+tbody tr.grp td{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);
+  font-weight:600;background:var(--surface-2);padding:7px 14px}
+tbody tr.grp.out td{color:var(--win)}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+th.num{text-align:right}
+.geno{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.pill{display:inline-block;font-family:var(--mono);font-size:12px;font-weight:600;
+  padding:2px 8px;border-radius:5px;background:var(--accent-soft);color:var(--accent);
+  white-space:nowrap}
+.match{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;
+  color:var(--win);white-space:nowrap}
+.match::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--win);flex:none}
+.cap{font-size:12px;color:var(--faint);padding:10px 14px;border-top:1px solid var(--line);
+  background:var(--surface-2)}
+.limit{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:8px;padding:14px 17px;margin-top:13px}
+.limit h3{font-size:13.5px;font-weight:600;margin-bottom:5px}
+.limit p{margin:0;font-size:13.5px;color:var(--muted);max-width:68ch}
+.srcs{font-size:12.5px;color:var(--muted);margin-top:11px;line-height:1.8}
+.srcs a{color:var(--muted);text-underline-offset:2px}
+.srcs a:hover{color:var(--accent)}
+footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--faint)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand"><b>IBMT Clinical</b><span>Virtual trial simulation</span></div>
+    <h1>Pharmacogenomic dose simulator</h1>
+    <p class="lede">The same standard dose lands differently in West African and European patients,
+      because the genes that clear these drugs differ sharply in frequency between the two. The
+      effect runs in opposite directions for the two drugs below.</p>
+  </header>
+
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <p class="dir" id="dir"></p>
+
+  <div class="rail">
+    <div>
+      <label class="ctl-label" for="dose">Daily dose</label>
+      <div class="dose-head">
+        <span class="dose-val" id="doseVal"></span><span class="dose-unit" id="doseUnit"></span>
+      </div>
+      <input type="range" id="dose">
+      <div class="ticks" id="ticks"></div>
+    </div>
+    <div>
+      <span class="ctl-label">Regimens</span>
+      <div class="presets" id="presets"></div>
+    </div>
+  </div>
+
+  <div class="vbar" id="vbar"></div>
+  <div class="cohorts" id="cohorts"></div>
+
+  <section>
+    <h2 id="gtTitle"></h2>
+    <p class="note" id="gtNote"></p>
+    <div class="panel">
+      <table><thead id="gtHead"></thead><tbody id="gtBody"></tbody></table>
+      <p class="cap" id="gtCap"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Why there is no "African" population</h2>
+    <p class="note">How much allele frequency varies across Africa depends on the gene &mdash; for
+      CYP3A5 the spread is twentyfold &mdash; and where it is wide, a continental average describes
+      nobody. A 2025 study building sub-Saharan African PBPK populations reached the same
+      conclusion: these populations "should ideally be modelled at a regional level rather than as a
+      single entity."</p>
+    <div class="panel">
+      <table><thead id="popHead"></thead><tbody id="popBody"></tbody></table>
+      <p class="cap" id="popCap"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Calibration against published cohorts</h2>
+    <p class="note" id="valNote"></p>
+    <div class="panel">
+      <table><thead><tr><th>Quantity</th><th class="num">Published</th><th class="num">Model</th>
+        <th>Source</th></tr></thead><tbody id="valBody"></tbody></table>
+      <p class="cap" id="valCap"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Method</h2>
+    <p class="note">Each virtual patient is assigned a genotype drawn from the cohort's observed
+      allele frequencies, then a clearance drawn from a lognormal distribution around that
+      genotype's typical value. Steady-state concentration follows from dose and clearance.
+      Distributions are evaluated analytically rather than sampled, so the curves are exact for the
+      fitted parameters.</p>
+    <p class="note">These are two well-characterised gene–drug pairs, used to test whether the
+      approach recovers known clinical answers. They are the validation cases for the broader model
+      IBMT Clinical is building on African genomic and gene-expression data.</p>
+    <p class="srcs" id="srcs"></p>
+  </section>
+
+  <footer>IBMT Clinical · simulation demo · calibrated on published cohorts, validated against
+    dosing guidelines that were not used in fitting</footer>
+</div>
+
+<script>
+"use strict";
+/* ===== shared math ===================================================== */
+function erf(x){
+  const s = x < 0 ? -1 : 1; x = Math.abs(x);
+  const t = 1/(1+0.3275911*x);
+  return s*(1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)
+            *t*Math.exp(-x*x));
+}
+const Phi = z => 0.5*(1+erf(z/Math.SQRT2));
+
+/* ===== drug definitions ================================================
+   Each drug supplies: median concentration for a genotype at a dose,
+   a lognormal sigma per genotype, genotype prevalence per cohort,
+   and the target window.                                                  */
+
+/* --- Efavirenz: composite CYP2B6 516G>T x 983T>C ---------------------- */
+const EFV_CL = {            // apparent clearance, L/h, adult scale
+  "GG|TT":11.0467,          // fitted on adult concentration data
+  "GT|TT": 7.8838,          // fitted
+  "TT|TT": 3.6794,          // fitted
+  "GG|TC": 6.2556,          // Bienczak 2016 ratio x fitted GG
+  "GT|TC": 2.1648,          // Bienczak 2016 ratio x fitted GG
+  "slow" : 1.1780           // GG|CC and rarer combinations
+};
+const EFV_SIGMA = 0.3802;
+
+function efvMix(f516, q983){
+  const TT = (1-q983)**2, TC = 2*q983*(1-q983), CC = q983**2;
+  const m = {
+    "GG|TT": f516.GG*TT, "GT|TT": f516.GT*TT, "TT|TT": f516.TT*TT,
+    "GG|TC": f516.GG*TC, "GT|TC": f516.GT*TC,
+    "slow" : f516.TT*TC + (f516.GG+f516.GT+f516.TT)*CC
+  };
+  let s = 0; for(const k in m) s += m[k];
+  for(const k in m) m[k] /= s;
+  return m;
+}
+
+const EFAVIRENZ = {
+  id:"efv", name:"Efavirenz", gene:"CYP2B6 516G>T × 983T>C (*18)",
+  variantToggle:[["516G>T only",0],["+ 983T>C (CYP2B6*18)",1]],
+  mixOf(p){
+    const f = p.f516 || (q => ({GG:(1-q)**2, GT:2*q*(1-q), TT:q*q}))(p.q516);
+    return efvMix(f, variantMode ? (p.q983||0) : 0);
+  },
+  afLabel:"516G>T / 983T>C",
+  afOf:p => (p.f516 ? (p.f516.GT/2+p.f516.TT) : p.q516) === undefined ? null
+          : [(p.f516 ? p.f516.GT/2+p.f516.TT : p.q516), p.q983],
+  unit:"mg once daily", min:100, max:800, step:25, dp:0,
+  ticks:["100","300","500","800"],
+  presets:[[600,"600 standard"],[400,"400 ENCORE1"],[200,"200 reduced"]],
+  lo:1, hi:4, cmax:11, cunit:"mg/L", concLabel:"median C₁₂",
+  loLabel:"Below 1", hiLabel:"Above 4",
+  available:[200,400,600,800],
+  direction:`At the standard 600 mg, a West African cohort is <b>over-exposed</b>: slow-metabolising
+    genotypes are far more common, so more patients sit above the 4 mg/L toxicity threshold.
+    Switch 983T&gt;C (CYP2B6*18) on below: the Nigerian cohort shifts, and the European cohort
+    cannot move at all, because the variant is absent there.`,
+  flag:(sub,win,tox)=>tox>=25,
+  sigma:()=>EFV_SIGMA,
+  median:(dose,g)=>dose/(EFV_CL[g]*24),
+  populations:[
+    {id:"ng", name:"Nigeria", region:"West Africa",
+     f516:{GG:.359,GT:.466,TT:.176}, q983:0.047, src:"Jos cohort, observed genotypes, n=262"},
+    {id:"ugza", name:"Uganda & Zambia", region:"East & Southern Africa",
+     q516:0.39, q983:0.07, src:"ARROW and CHAPAS-3 cohorts, n=169"},
+    {id:"aa", name:"African American", region:"Admixed diaspora",
+     q516:0.33, q983:0.075, src:"516G>T published range 0.28–0.38, midpoint used"},
+    {id:"eur", name:"European ancestry", region:"Reference",
+     f516:{GG:.563,GT:.375,TT:.063}, q983:0, src:"gnomAD non-Finnish European"},
+    {id:"gh", name:"Ghana", region:"West Africa", q983:0.076, selectable:false,
+     missing:"no published 516G>T frequency found"},
+    {id:"sn", name:"Senegal", region:"West Africa", q983:0.062, selectable:false,
+     missing:"no published 516G>T frequency found"}
+  ],
+  defaults:["ng","eur"],
+  genoRows:[
+    ["GG|TT","Extensive"],["GT|TT","Intermediate"],["GG|TC","Intermediate"],
+    ["TT|TT","Slow"],["GT|TC","Slow"],["slow","Ultra-slow"]
+  ],
+  genoLabel:g => g === "slow" ? "other slow" : g,
+  gtTitle:"Dose that puts most patients in the therapeutic window",
+  gtNote:`For each composite genotype the simulator picks the regimen that puts the largest share of
+    patients between 1 and 4 mg/L, choosing among doses buildable from 200 and 600 mg tablets. No
+    dosing guideline went into the fit.`,
+  gtCap:`516G>T prevalence observed in a Jos, Nigeria cohort of 262 adults; European from gnomAD
+    non-Finnish European under Hardy–Weinberg. 983T>C set to the pooled West African frequency of
+    4.7% and to zero in Europe, where it was absent in 93 Caucasian-Americans. Composite genotypes
+    assume the two loci are independent. Note on nomenclature: CYP2B6*18 is the three-variant
+    haplotype 516G–785A–983C, whereas this model is indexed on the 983 locus alone. In the same West
+    African sample the *18 haplotype frequency was 4.2% against 4.7% for the 983C allele, so the two
+    are close but not identical.`,
+  guideCol:"CPIC 2019",
+  guide:{"GG|TT":"600 mg","GT|TT":"Consider 400 mg","GG|TC":"Consider 400 mg",
+         "TT|TT":"Consider 400 or 200 mg","GT|TC":"Consider 400 or 200 mg",
+         "slow":"Consider 400 or 200 mg"},
+  valNote:`Four observed quantities fixed three clearance values and one variability term for the
+    516 genotypes. Everything below the line was held out.`,
+  valCap:`Fitted: apparent clearance 11.05 L/h (GG|TT), 7.88 (GT|TT), 3.68 (TT|TT); lognormal CV 39%.
+    983T>C (CYP2B6*18) clearances scaled from Bienczak 2016 composite-genotype ratios.
+    C₁₂ = dose ÷ (CL/F × 24 h).`,
+  limit:{h:"What this does not cover",
+    p:`Only two CYP2B6 loci. Other variants affect efavirenz clearance; the 983T>C clearance values
+       are scaled from a paediatric population PK study rather than fitted on adults; and the model
+       is indexed on the 983 locus rather than resolving the full CYP2B6*18 haplotype.`},
+  validation(){
+    const c=(x,g,d=600)=>Phi((Math.log(x)-Math.log(this.median(d,g)))/EFV_SIGMA);
+    return [
+      ["Mean C₁₂, GT above GG","+0.98 mg/L","+0.98 mg/L","Sci Rep 2017, n=456",0],
+      ["Mean C₁₂, TT above GG","+4.87 mg/L","+4.87 mg/L","Sci Rep 2017, n=456",0],
+      ["GG below 2 mg/L","37.3%",(c(2,"GG|TT")*100).toFixed(1)+"%","114 of 306",0],
+      ["GT below 2 mg/L","11.3%",(c(2,"GT|TT")*100).toFixed(1)+"%","16 of 142",0],
+      ["TT at or above 4 mg/L","100% (8 of 8)",((1-c(4,"TT|TT"))*100).toFixed(0)+"%",
+        "8 of 8 consistent with 92%",1],
+      ["Cohort median C₁₂","2.41 mg/L",
+        medianOfMix(600,{"GG|TT":306/456,"GT|TT":142/456,"TT|TT":8/456},this).toFixed(2)+" mg/L",
+        "whole cohort",1],
+      ["GT/GG clearance ratio","0.706","0.714","Zambia/Uganda children, n=169",1],
+      ["Dose by genotype","CPIC 2019","MATCH","not used in fitting",1]
+    ];
+  },
+  srcs:[
+    ["CYP2B6 prevalence, Jos, Nigeria (n=262)","https://pmc.ncbi.nlm.nih.gov/articles/PMC8576856"],
+    ["Efavirenz C₁₂ by genotype (n=456)","https://pmc.ncbi.nlm.nih.gov/articles/PMC5701031"],
+    ["983T>C (CYP2B6*18) effect and composite genotypes, Bienczak 2016",
+      "https://discovery-pp.ucl.ac.uk/id/eprint/1483154/1/Bienczak_et_al-2016-British_Journal_of_Clinical_Pharmacology.pdf"],
+    ["983T>C and *18 haplotype frequency in West Africa",
+      "https://pmc.ncbi.nlm.nih.gov/articles/PMC2000644"],
+    ["CPIC guideline, CYP2B6 and efavirenz","https://pmc.ncbi.nlm.nih.gov/articles/PMC6739160"]
+  ]
+};
+
+/* --- Tacrolimus: CYP3A5 expresser status ------------------------------ */
+const TAC_CD = {EXP:54.61, NON:91.80};   // ng/mL per mg/kg/day, day-3 trough
+const TAC_SIG = {EXP:0.6692, NON:0.6046}; // from published IQRs
+
+function tacMix(q3){                      // q3 = CYP3A5*3 allele frequency
+  const non = q3*q3;
+  return {EXP:1-non, NON:non};
+}
+
+const TACROLIMUS = {
+  id:"tac", name:"Tacrolimus", gene:"CYP3A5 *1/*3",
+  unit:"mg/kg/day, split twice daily", min:0.05, max:0.40, step:0.01, dp:2,
+  ticks:["0.05","0.15","0.25","0.40"],
+  presets:[[0.15,"0.15 non-expresser"],[0.20,"0.20 expresser"],[0.30,"0.30 CPIC cap"]],
+  lo:10, hi:15, cmax:40, cunit:"ng/mL", concLabel:"median trough",
+  loLabel:"Below 10", hiLabel:"Above 15",
+  safety:[4,20],
+  available:null,
+  direction:`Here the effect runs the other way. CYP3A5 <i>expressers</i> clear tacrolimus faster and
+    need <b>more</b> drug, and almost every West African patient is an expresser while almost no
+    European patient is. At the 0.15 mg/kg/day non-expresser dose, <b>61% of the Nigerian cohort
+    falls below target</b> against 35% of the European cohort — under-immunosuppression, which
+    carries rejection risk.`,
+  flag:(sub,win,tox)=>sub>=50,
+  sigma:g => TAC_SIG[g],
+  median:(dose,g)=>dose*TAC_CD[g],
+  mixOf(p){ return p.mix || tacMix(p.q3); },
+  afLabel:"CYP3A5*3",
+  afOf:p => [p.q3],
+  populations:[
+    {id:"ug", name:"Uganda",  region:"East Africa",  q3:0.04, src:"Ssese sample"},
+    {id:"gh", name:"Ghana",   region:"West Africa",  q3:0.11,
+     src:"Asante sample; Ghanaian samples range 0.11–0.22"},
+    {id:"ng", name:"Nigeria", region:"West Africa",  q3:0.13, src:"Igbo sample"},
+    {id:"sn", name:"Senegal", region:"West Africa",  q3:0.25,
+     src:"Wolof sample; Senegalese samples range 0.21–0.25"},
+    {id:"aa", name:"African American", region:"Admixed diaspora", q3:0.289,
+     mix:{EXP:0.902, NON:0.098}, src:"observed genotypes, n=357 transplant recipients"},
+    {id:"et", name:"Ethiopia", region:"East Africa", q3:0.67,
+     src:"Amhara sample; Afar sample 0.65"},
+    {id:"ma", name:"Morocco",  region:"North Africa", q3:0.80, src:"Berber sample"},
+    {id:"eur",name:"European ancestry", region:"Reference", q3:0.92,
+     src:"CPIC: 80–85% homozygous *3"}
+  ],
+  defaults:["ng","eur"],
+  genoRows:[["EXP","Expresser"],["NON","Non-expresser"]],
+  genoLabel:g => g === "EXP" ? "*1/*1 or *1/*3" : "*3/*3",
+  gtTitle:"Dose needed to reach the target trough",
+  gtNote:`For each phenotype the simulator picks the dose putting the largest share of patients in
+    the 10–15 ng/mL day-3 target used by a real CYP3A5-guided protocol. CPIC's recommendation was
+    not used in fitting.`,
+  gtCap:`CYP3A5*3 frequency 0.13 in Igbo (Nigeria) and 0.92 in European ancestry, giving roughly 98%
+    expressers in Nigeria against 15% in Europe. Target window and the 4 / 20 ng/mL safety bounds
+    are those of protocol NCT04825262.`,
+  guideCol:"CPIC 2015",
+  guide:{EXP:"1.5–2× standard, cap 0.3", NON:"Standard dose"},
+  valNote:`Two published dose-normalised troughs and their interquartile ranges fixed the model.
+    The dose ratio between phenotypes was held out.`,
+  valCap:`Day-3 dose-normalised trough: 54.61 ng/mL per mg/kg/day in expressers, 91.80 in
+    non-expressers; lognormal CV 75% and 66%, derived from the published IQRs. Trough = dose ×
+    ratio.`,
+  limit:{h:"A gap this model cannot close",
+    p:`Two things limit it. First, the 10–15 ng/mL target is narrow against a 70% coefficient of
+       variation, so in-target fractions are low for every cohort at every dose — which is precisely
+       why tacrolimus requires therapeutic drug monitoring, and why the useful output here is the
+       difference between cohorts rather than absolute target attainment. Second, CPIC notes that
+       people of sub-Saharan African descent need high tacrolimus doses regardless of CYP3A5
+       genotype, so factors beyond this gene are at work and a genotype-only model under-predicts
+       African requirements. The data needed to explain the rest has never been generated — which is
+       the gap this company exists to close.`},
+  validation(){
+    const q=(p,g)=>Math.exp(Math.log(TAC_CD[g])+TAC_SIG[g]*p);
+    const best=g=>{let b=0,bw=-1;for(let d=0.05;d<=0.40001;d+=0.005){
+      const w=Phi((Math.log(this.hi)-Math.log(this.median(d,g)))/TAC_SIG[g])
+             -Phi((Math.log(this.lo)-Math.log(this.median(d,g)))/TAC_SIG[g]);
+      if(w>bw){bw=w;b=d;}}return b;};
+    const ratio = best("EXP")/best("NON");
+    return [
+      ["Expresser trough per mg/kg/day","54.6 ng/mL","54.6 ng/mL","Day 3, n=164",0],
+      ["Non-expresser trough per mg/kg/day","91.8 ng/mL","91.8 ng/mL","Day 3, n=164",0],
+      ["Expresser upper quartile","78.9 ng/mL",q(0.6745,"EXP").toFixed(1)+" ng/mL","published IQR",0],
+      ["Non-expresser upper quartile","130.2 ng/mL",q(0.6745,"NON").toFixed(1)+" ng/mL",
+        "published IQR",0],
+      ["Expresser dose ÷ non-expresser dose","1.5–2× (CPIC)",ratio.toFixed(2)+"×",
+        "not used in fitting",1],
+      ["Protocol dose for expressers","0.20 mg/kg/day",best("EXP").toFixed(2)+" mg/kg/day",
+        "NCT04825262",1]
+    ];
+  },
+  srcs:[
+    ["Tacrolimus trough by CYP3A5 genotype (n=164)",
+      "https://link.springer.com/article/10.1007/s00228-015-1990-0"],
+    ["CYP3A5*3 frequency across African populations",
+      "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3655848/"],
+    ["CPIC guideline, CYP3A5 and tacrolimus",
+      "https://pmc.ncbi.nlm.nih.gov/articles/PMC4481158"],
+    ["Protocol NCT04825262, CYP3A5-guided dosing",
+      "https://cdn.clinicaltrials.gov/large-docs/62/NCT04825262/Prot_000.pdf"]
+  ]
+};
+
+const DRUGS = [EFAVIRENZ, TACROLIMUS];
+let drug = DRUGS[0], dose = 600, variantMode = 1, sel = ["ng","eur"];
+const popOf = (D,id) => D.populations.find(p => p.id === id) || D.populations[0];
+const cohortsOf = D => sel.map((id,i) =>
+  D.populations.find(p => p.id === id) || popOf(D, D.defaults[i]));
+
+/* ===== distribution helpers ============================================ */
+const cdfG = (x,d,g,D) => Phi((Math.log(x)-Math.log(D.median(d,g)))/D.sigma(g));
+const pdfG = (x,d,g,D) => {
+  const s = D.sigma(g), z = (Math.log(x)-Math.log(D.median(d,g)))/s;
+  return Math.exp(-z*z/2)/(x*s*Math.sqrt(2*Math.PI));
+};
+const mixCdf = (x,d,mix,D) => {
+  let s = 0; for(const g in mix) s += mix[g]*cdfG(x,d,g,D); return s;
+};
+function medianOfMix(d,mix,D){
+  let lo = 1e-4, hi = 1e4;
+  for(let i=0;i<90;i++){
+    const m = (lo+hi)/2;
+    if(mixCdf(m,d,mix,D) < 0.5) lo = m; else hi = m;
+  }
+  return (lo+hi)/2;
+}
+function bestDose(mix,D){
+  let best = 0, bw = -1;
+  const grid = D.available || (()=>{const a=[];for(let v=D.min;v<=D.max+1e-9;v+=D.step)a.push(v);return a;})();
+  for(const d of grid){
+    const w = mixCdf(D.hi,d,mix,D)-mixCdf(D.lo,d,mix,D);
+    if(w > bw){ bw = w; best = d; }
+  }
+  return best;
+}
+
+/* ===== chart =========================================================== */
+const W = 420, CH = 170, PAD = {l:4, r:4, t:10, b:22};
+let yMax = 1;
+function curve(d,mix,D){
+  const n = 240, pts = [];
+  for(let i=0;i<=n;i++){
+    const x = D.cmax*0.002 + (D.cmax-D.cmax*0.002)*i/n;
+    let y = 0; for(const g in mix) y += mix[g]*pdfG(x,d,g,D);
+    pts.push([x,y]);
+  }
+  return pts;
+}
+function chart(d,mix,D){
+  const pts = curve(d,mix,D);
+  const iw = W-PAD.l-PAD.r, ih = CH-PAD.t-PAD.b;
+  const sx = x => PAD.l + x/D.cmax*iw;
+  const sy = y => PAD.t + ih - Math.min(y/yMax,1)*ih;
+  const path = pts.map(([x,y],i)=>`${i?"L":"M"}${sx(x).toFixed(2)} ${sy(y).toFixed(2)}`).join("");
+  const area = `${path}L${sx(D.cmax).toFixed(2)} ${PAD.t+ih}L${sx(0).toFixed(2)} ${PAD.t+ih}Z`;
+  const uid = "c"+Math.random().toString(36).slice(2,8);
+  const region = (a,b,fill,i) => `
+    <clipPath id="${uid}${i}"><rect x="${sx(a).toFixed(2)}" y="0"
+      width="${(sx(b)-sx(a)).toFixed(2)}" height="${CH}"/></clipPath>
+    <rect x="${sx(a).toFixed(2)}" y="${PAD.t}" width="${(sx(b)-sx(a)).toFixed(2)}"
+      height="${ih}" fill="${fill}" opacity=".16"/>
+    <path d="${area}" fill="${fill}" clip-path="url(#${uid}${i})"/>`;
+  const rule = (x,c) => `<line x1="${sx(x).toFixed(2)}" y1="${PAD.t}" x2="${sx(x).toFixed(2)}"
+      y2="${PAD.t+ih}" stroke="${c}" stroke-width="1.1" stroke-dasharray="3 2.5"/>`;
+  const tick = (x,t,a="middle") => `<text x="${sx(x).toFixed(2)}" y="${CH-7}" font-size="9.5"
+      fill="var(--faint)" font-family="var(--mono)" text-anchor="${a}">${t}</text>`;
+  const g = D.cmax >= 40 ? [0,10,15,20,30] : [0,1,4,8];
+  return `<svg class="dist" viewBox="0 0 ${W} ${CH}" role="img"
+      aria-label="Predicted concentration distribution">
+    ${region(0,D.lo,"var(--sub)",0)}${region(D.lo,D.hi,"var(--win)",1)}
+    ${region(D.hi,D.cmax,"var(--tox)",2)}
+    <path d="${path}" fill="none" stroke="var(--fg)" stroke-width="1.7" stroke-linejoin="round"/>
+    ${rule(D.lo,"var(--sub)")}${rule(D.hi,"var(--tox)")}
+    <line x1="${PAD.l}" y1="${PAD.t+ih}" x2="${PAD.l+iw}" y2="${PAD.t+ih}"
+      stroke="var(--line)" stroke-width="1"/>
+    ${g.map((v,i)=>tick(v,String(v),i?"middle":"start")).join("")}
+    ${tick(D.cmax,D.cmax+" "+D.cunit,"end")}
+  </svg>`;
+}
+
+/* ===== render ========================================================== */
+const $ = id => document.getElementById(id);
+
+function renderTabs(){
+  $("tabs").innerHTML = DRUGS.map(D =>
+    `<button role="tab" data-id="${D.id}" aria-selected="${D===drug}">
+      <span class="t-n">${D.name}</span><span class="t-g">${D.gene}</span></button>`).join("");
+  $("tabs").querySelectorAll("button").forEach(b =>
+    b.addEventListener("click", () => {
+      drug = DRUGS.find(D => D.id === b.dataset.id);
+      dose = drug.presets[0][0];
+      sel = drug.defaults.slice();
+      renderTabs(); syncRail(); renderStatic(); render();
+    }));
+}
+function syncRail(){
+  const D = drug, el = $("dose");
+  el.min = D.min; el.max = D.max; el.step = D.step; el.value = dose;
+  $("doseUnit").textContent = D.unit;
+  $("ticks").innerHTML = D.ticks.map(t=>`<span>${t}</span>`).join("");
+  $("presets").innerHTML = D.presets.map(([v,l]) =>
+    `<button type="button" data-d="${v}">${l}</button>`).join("");
+  $("presets").querySelectorAll("button").forEach(b =>
+    b.addEventListener("click", () => { dose = +b.dataset.d; $("dose").value = dose; render(); }));
+  $("dir").innerHTML = D.direction;
+
+  const vb = $("vbar");
+  if(!D.variantToggle){
+    vb.innerHTML = "";              // empty, so .vbar:empty hides it and no stale text survives
+  } else {
+    vb.innerHTML = `<div class="vl"><span class="vt">Variants modelled</span>
+      <div class="presets" id="vp">${D.variantToggle.map(([l,v]) =>
+        `<button type="button" data-v="${v}">${l}</button>`).join("")}</div></div>
+      <div class="delta" id="vdelta"></div>`;
+    vb.querySelectorAll("#vp button").forEach(b =>
+      b.addEventListener("click", () => {
+        variantMode = +b.dataset.v; renderStatic(); render();
+      }));
+  }
+}
+
+function renderStatic(){
+  const D = drug;
+  $("gtTitle").textContent = D.gtTitle;
+  $("gtNote").textContent  = D.gtNote;
+  $("gtCap").textContent   = D.gtCap;
+  $("valNote").textContent = D.valNote;
+  $("valCap").innerHTML    = D.valCap;
+  $("srcs").innerHTML = "Sources · " + D.srcs.map(([t,u]) =>
+    `<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join(" · ");
+
+  const co = cohortsOf(D);
+  $("gtHead").innerHTML = `<tr><th>${D.gene.split(" ")[0]}</th><th>Phenotype</th>
+    <th class="num">${co[0].missing?"—":co[0].name}</th>
+    <th class="num">${co[1].missing?"—":co[1].name}</th>
+    <th class="num">Conc. at ${D.presets[0][0]}</th>
+    <th>Predicted dose</th><th>${D.guideCol}</th></tr>`;
+  const m0 = co[0].missing?{}:D.mixOf(co[0]), m1 = co[1].missing?{}:D.mixOf(co[1]);
+  $("gtBody").innerHTML = D.genoRows.map(([g,pheno]) => {
+    const b = bestDose({[g]:1},D);
+    return `<tr><td class="geno">${D.genoLabel(g)}</td><td>${pheno}</td>
+      <td class="num">${((m0[g]||0)*100).toFixed(1)}%</td>
+      <td class="num">${((m1[g]||0)*100).toFixed(1)}%</td>
+      <td class="num">${D.median(D.presets[0][0],g).toFixed(D.cmax>=40?1:2)} ${D.cunit}</td>
+      <td><span class="pill">${b.toFixed(D.dp)}</span></td>
+      <td>${D.guide[g]}</td></tr>`;
+  }).join("");
+
+  const two = D.afLabel.includes("/");
+  $("popHead").innerHTML = `<tr><th>Population</th><th>Region</th>
+    ${two?'<th class="num">516G>T</th><th class="num">983T>C</th>'
+         :`<th class="num">${D.afLabel}</th>`}
+    <th class="num">${D.genoRows[D.genoRows.length-1][1]}</th></tr>`;
+  $("popBody").innerHTML = D.populations.map(p => {
+    const af = D.afOf(p);
+    const slowest = D.genoRows[D.genoRows.length-1][0];
+    const share = p.missing ? "—"
+      : ((D.mixOf(p)[slowest]||0)*100).toFixed(1)+"%";
+    const cells = two
+      ? `<td class="num">${af&&af[0]!==undefined?af[0].toFixed(3):"—"}</td>
+         <td class="num">${p.q983!==undefined?p.q983.toFixed(3):"—"}</td>`
+      : `<td class="num">${p.q3.toFixed(2)}</td>`;
+    return `<tr${sel.includes(p.id)?' style="background:var(--surface-2)"':""}>
+      <td${p.missing?' style="color:var(--faint)"':""}>${p.name}</td>
+      <td style="color:var(--muted)">${p.region}${p.src?' · <span style="color:var(--faint)">'
+        +p.src.replace(/;.*$/,"")+"</span>":""}</td>${cells}
+      <td class="num">${share}</td></tr>`;
+  }).join("");
+  const afGloss = "Figures are allele frequencies: the share of gene copies carrying the variant, "
+    + "not the share of people. ";
+  $("popCap").textContent = two
+    ? afGloss + "Nigeria's 0.409 at 516G>T means roughly 65% of people carry at least one copy and "
+      + "16% carry two. Within Africa 983T>C ranges from 0.047 in Nigeria to 0.076 in Ghana, and "
+      + "Uganda and Zambia have 40% more ultra-slow metabolisers than Nigeria despite a lower "
+      + "516G>T frequency: the 983 locus, the one absent from European data, drives the tail. "
+      + "Country labels name the country a sample came from, not the whole country: each row is one "
+      + "sampled cohort. Ghana and Senegal have published 983T>C frequencies but no 516G>T "
+      + "frequency, so they are listed and not offered for simulation rather than filled in by "
+      + "assumption."
+    : afGloss + "CYP3A5*3 frequencies span 0.04 in Uganda to 0.80 in Morocco — a twentyfold range. Ethiopia "
+      + "at 0.67 sits closer to European ancestry than to Nigeria. Country labels name the sampled "
+      + "ethnic group's country, not the whole country: Ghanaian samples alone range 0.11 to 0.22, "
+      + "so within-country variation is real too. African American values are observed genotypes "
+      + "from 357 transplant recipients.";
+
+  let band = null;
+  $("valBody").innerHTML = D.validation().map(([q,p,m,s,held]) => {
+    let grp = "";
+    if(held !== band){
+      band = held;
+      grp = `<tr class="grp${held?" out":""}"><td colspan="4">${held
+        ? "Held out · none of this was available to the fit"
+        : "Fitted · these set the parameters and cannot test the model"}</td></tr>`;
+    }
+    return grp + `<tr><td>${q}</td><td class="num">${p}</td>
+     <td class="num">${m==="MATCH"?'<span class="match">all genotypes match</span>':m}</td>
+     <td>${s}</td></tr>`;
+  }).join("");
+}
+
+function render(){
+  const D = drug;
+  $("doseVal").textContent = (+$("dose").value).toFixed(D.dp);
+  dose = +$("dose").value;
+  $("presets").querySelectorAll("button").forEach(b =>
+    b.setAttribute("aria-pressed", Math.abs(+b.dataset.d - dose) < 1e-9));
+
+  const cohorts = cohortsOf(D).map(p => p.missing ? p : p);
+  yMax = 0;
+  for(const c of cohorts) if(!c.missing)
+    for(const [,y] of curve(dose,D.mixOf(c),D)) if(y>yMax) yMax = y;
+  yMax = yMax ? yMax*1.08 : 1;
+
+  if(D.variantToggle){
+    $("vbar").querySelectorAll("#vp button").forEach(b =>
+      b.setAttribute("aria-pressed", +b.dataset.v === variantMode));
+    const keep = variantMode, out = [];
+    for(const c of cohorts){
+      if(c.missing) continue;
+      variantMode = 0; const a = (1-mixCdf(D.hi,dose,D.mixOf(c),D))*100;
+      variantMode = 1; const z = (1-mixCdf(D.hi,dose,D.mixOf(c),D))*100;
+      out.push([c.name.replace(/\s*\(.*\)/,""), a, z]);
+    }
+    variantMode = keep;
+    $("vdelta").innerHTML = `above ${D.hi} ${D.cunit} · ` + out.map(([n,a,z]) =>
+      Math.abs(z-a) < 0.05
+        ? `${n} ${a.toFixed(0)}% <i>unchanged — variant absent</i>`
+        : `${n} ${a.toFixed(0)}% → <b>${z.toFixed(0)}%</b>`).join(" · ");
+  }
+
+  const opts = (cur,other) => D.populations.filter(p => p.selectable !== false).map(p =>
+    `<option value="${p.id}"${p.id===cur?" selected":""}${p.id===other?" disabled":""}>${
+      p.name}</option>`).join("");
+
+  $("cohorts").innerHTML = cohorts.map((c,i) => {
+    const head = `<select class="psel" data-slot="${i}" aria-label="Population">${
+      opts(c.id, sel[1-i])}</select>`;
+    if(c.missing) return `<div class="cohort">
+      <div class="c-head"><div>${head}<div class="c-sub">${c.region}</div></div></div>
+      <div class="missing"><b>Cannot model this population</b>There is ${c.missing}.<br>
+        This is the data gap, shown rather than averaged away.</div></div>`;
+    const mix = D.mixOf(c);
+    const below = mixCdf(D.lo,dose,mix,D), upto = mixCdf(D.hi,dose,mix,D);
+    const sub = below*100, win = (upto-below)*100, tox = (1-upto)*100;
+    const med = medianOfMix(dose,mix,D);
+    let safety = "";
+    if(D.safety){
+      const out = (mixCdf(D.safety[0],dose,mix,D)
+                 + 1-mixCdf(D.safety[1],dose,mix,D))*100;
+      safety = `<div class="safety${out>25?" breach":""}">
+        <span>outside ${D.safety[0]}–${D.safety[1]} ${D.cunit}</span>
+        <span>${out.toFixed(1)}% ${out>25?"· stopping rule breached":"· under 25% limit"}</span>
+      </div>`;
+    }
+    return `<div class="cohort${D.flag(sub,win,tox)?" flag":""}">
+      <div class="c-head">
+        <div>${head}<div class="c-sub">${c.region}${c.src?" · "+c.src:""}</div></div>
+        <div class="c-med"><em>${D.concLabel}</em>${med.toFixed(D.cmax>=40?1:2)} ${D.cunit}</div>
+      </div>
+      ${chart(dose,mix,D)}
+      <div class="bars">
+        <div class="bar"><div class="k"><i class="dot" style="background:var(--sub)"></i>${D.loLabel}</div>
+          <div class="v" style="color:var(--sub)">${sub.toFixed(0)}%</div></div>
+        <div class="bar"><div class="k"><i class="dot" style="background:var(--win)"></i>In target</div>
+          <div class="v" style="color:var(--win)">${win.toFixed(0)}%</div></div>
+        <div class="bar"><div class="k"><i class="dot" style="background:var(--tox)"></i>${D.hiLabel}</div>
+          <div class="v" style="color:var(--tox)">${tox.toFixed(0)}%</div></div>
+      </div>${safety}
+    </div>`;
+  }).join("");
+
+  $("cohorts").querySelectorAll("select.psel").forEach(s =>
+    s.addEventListener("change", () => {
+      sel[+s.dataset.slot] = s.value; renderStatic(); render();
+    }));
+}
+
+$("dose").addEventListener("input", render);
+renderTabs(); syncRail(); renderStatic(); render();
+</script>
+
+</body>
+</html>
