@@ -74,17 +74,6 @@ name the country a sampled cohort came from, not the whole country. Where a freq
 not been published — Ghana and Senegal for CYP2B6 516G>T — the population is listed but not
 offered for simulation, rather than filled in by assumption.
 
-## Sources
-
-All data is from published literature and public regulatory documents. Each demo lists its
-own sources in the page footer; the regulatory demo's source sheet gives the document
-reference and a link for every requirement.
-
-## Deploying
-
-Static site, no build. On Netlify, set the publish directory to the repository root and
-leave the build command empty. `netlify.toml` already does this.
-
 ---
 
 **Not regulatory or medical advice.** These are prototypes built to test an approach.
